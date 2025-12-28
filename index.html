@@ -87,10 +87,19 @@
 
         if (cond === 'good') {
             baseCapability = (horse.ability * 0.7) + (horse.suitability * 0.3);
+            if (horse.suitability >= 95) trackComment = "絶好";
+            else if (horse.power < 80) trackComment = "歓迎";
+            else trackComment = "適合";
         } else if (cond === 'yielding') {
             baseCapability = (horse.ability * 0.4) + (horse.power * 0.3) + (horse.suitability * 0.3);
+            if (horse.power >= 85) trackComment = "好機";
+            else if (horse.power < 80) trackComment = "警戒";
+            else trackComment = "対応";
         } else {
             baseCapability = (horse.power * 0.6) + (horse.suitability * 0.4);
+            if (horse.power >= 90) trackComment = "鬼";
+            else if (horse.power < 82) trackComment = "苦戦";
+            else trackComment = "可";
         }
 
         let riskPenalty = 0;
