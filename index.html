@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arima Logic 2025 - Portable</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { background: #0f172a; color: white; font-family: sans-serif; }</style>
+</head>
+<body class="p-4 max-w-4xl mx-auto">
+  <header class="mb-4 border-b border-slate-700 pb-2">
+    <h1 class="text-xl font-bold text-white">Arima Logic 2025 <span class="text-slate-500 text-sm">Portable</span></h1>
+  </header>
+
+  <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 mb-4">
+    <label class="text-xs font-bold text-slate-400 uppercase block mb-1">馬場状態</label>
+    <div class="flex gap-2" id="condition-buttons">
+       <button onclick="setCondition('good')" id="btn-good" class="flex-1 px-2 py-2 rounded text-sm font-bold bg-emerald-600 text-white">良 (Speed)</button>
+       <button onclick="setCondition('yielding')" id="btn-yielding" class="flex-1 px-2 py-2 rounded text-sm font-bold bg-slate-800 text-slate-400 border border-slate-600">稍重</button>
+       <button onclick="setCondition('soft')" id="btn-soft" class="flex-1 px-2 py-2 rounded text-sm font-bold bg-slate-800 text-slate-400 border border-slate-600">重〜不良</button>
+    </div>
+  </div>
+
+  <div id="horse-list" class="space-y-3"></div>
+
+  <script>
+    const horses = [{"id":"excite","gate":1,"name":"エキサイトバイオ","jockey":"荻野極","age":3,"sex":"M","ability":84,"suitability":88,"power":82,"style":9,"achievements":"25年菊花賞(G1)3着, 3歳1勝クラス","desc":"菊花賞で見せた驚異のスタミナと、ロスのないイン突きの技術は、中山2500mの最内枠でこそ真価を発揮する。実績不足を補うだけの「枠の利」と「成長力」があり、波乱の主役になり得る。"},{"id":"shin","gate":2,"name":"シンエンペラー","jockey":"坂井瑠星","age":4,"sex":"M","ability":93,"suitability":94,"power":95,"style":5,"achievements":"25年ネオムターフC(G2), ホープフルS(G1)2着","desc":"海外遠征で揉まれ、馬体が一回り成長。欧州血統特有のパワーは冬の中山のタフな馬場に最適。2番枠から好位のインを確保できれば、物理的に最も勝利に近いポジションを取れる。"},{"id":"justin","gate":3,"name":"ジャスティンパレス","jockey":"団野大成","age":6,"sex":"M","ability":94,"suitability":89,"power":87,"style":6,"achievements":"23年天皇賞春(G1), 神戸新聞杯(G2)","desc":"一昨年の覇者級の実績馬。3番枠はズブさを補うための絶好のポジション。道中で置かれなければ、勝負所での反応の鈍さを最小限に抑え、直線で弾けるだけの底力は維持している。"},{"id":"museum","gate":4,"name":"ミュージアムマイル","age":3,"sex":"M","jockey":"Ｃ.デムーロ","ability":96,"suitability":99,"power":92,"style":3,"achievements":"25年皐月賞(G1), 天皇賞秋(G1)2着","desc":"皐月賞と同じ2枠4番は吉兆。天皇賞(秋)で古馬相手に2着と好走した実力は本物。3歳56kgの恩恵と、C.デムーロの腕が組み合わされば、先行抜け出しの王道競馬でねじ伏せる。"},{"id":"regaleira","gate":5,"name":"レガレイラ","age":4,"sex":"F","jockey":"Ｃ.ルメール","ability":98,"suitability":86,"power":83,"style":9,"achievements":"24年有馬記念(G1), ホープフルS(G1)","desc":"能力値はメンバー中No.1。5番枠は悪くないが、後方脚質ゆえに4コーナーでの「進路確保」が最大の課題。ルメール騎手が馬群をどう捌くか、その一点に連覇の成否がかかっている。"},{"id":"meisho","gate":6,"name":"メイショウタバル","age":4,"sex":"M","jockey":"武豊","ability":89,"suitability":85,"power":89,"style":0,"achievements":"25年宝塚記念(G1), 毎日杯(G3)","desc":"今年G1を制した逃げ馬。6番枠なら無理なくハナを主張できる。武豊騎手が刻む絶妙なラップタイムが後続の脚を封じれば、そのまま逃げ切る「行ったきり」のシーンも十分にある。"},{"id":"sunrise_z","gate":7,"name":"サンライズジパング","age":4,"sex":"M","jockey":"鮫島克駿","ability":86,"suitability":86,"power":94,"style":6,"achievements":"みやこS(G3), 若駒S(L)","desc":"ダート重賞を勝つほどのパワー型。冬の中山の荒れた馬場は彼にとってのレッドカーペット。時計が掛かる消耗戦になれば、上位陣が苦しむ中で相対的に浮上する。"},{"id":"chevalier","gate":8,"name":"シュヴァリエローズ","age":7,"sex":"M","jockey":"北村友一","ability":80,"suitability":81,"power":79,"style":4,"achievements":"京都記念(G2)3着","desc":"長く活躍するベテランだが、近走のパフォーマンス曲線は下降気味。G1の激流において、全盛期の輝きを取り戻すのは統計的に困難。展開の助けがあっても掲示板確保が現実的か。"},{"id":"danon","gate":9,"name":"ダノンデサイル","age":4,"sex":"M","jockey":"戸崎圭太","ability":95,"suitability":96,"power":88,"style":4,"achievements":"24年日本ダービー(G1), 京成杯(G3)","desc":"ダービー馬。5枠9番は前に壁を作りやすく、かつ動きたい時に動ける好枠。操縦性の高さは中山2500mという複雑な系において最大の武器であり、事故率が最も低い構造的優位馬。"},{"id":"cosmo","gate":10,"name":"コスモキュランダ","age":4,"sex":"M","jockey":"横山武史","ability":89,"suitability":97,"power":87,"style":8,"achievements":"弥生賞(G2), 皐月賞(G1)2着","desc":"中山マイスター。外目の枠だが、向こう正面から捲る彼にとっては動きやすい位置。3コーナーから長く良い脚を使うスタイルは、このコースの必勝パターンの一つ。"},{"id":"mystery","gate":11,"name":"ミステリーウェイ","age":7,"sex":"G","jockey":"松本大輝","ability":78,"suitability":75,"power":85,"style":1,"achievements":"3勝クラス","desc":"外枠の逃げ馬は厳しい。メイショウタバルを制してハナを切るには相当脚を使うことになる。控えても持ち味が出ず、苦戦は必至の構造的不利を抱える。"},{"id":"meiner","gate":12,"name":"マイネルエンペラー","age":5,"sex":"M","jockey":"丹内祐次","ability":81,"suitability":84,"power":90,"style":7,"achievements":"3勝クラス","desc":"ゴールドシップ産駒らしく、雨や荒れ馬場でパフォーマンスが向上するパワー型。良馬場のスピード勝負では分が悪いが、消耗戦になればしぶとく伸びてくる。"},{"id":"admire","gate":13,"name":"アドマイヤテラ","age":4,"sex":"M","jockey":"川田将雅","ability":88,"suitability":88,"power":91,"style":5,"achievements":"茶臼山高原特別(2勝)","desc":"スタミナはあるが、7枠13番はコーナー6回の中山では致命的な距離ロスを生む。川田騎手の手腕をもってしても、外々を回らされる展開になれば最後は甘くなる。"},{"id":"arata","gate":14,"name":"アラタ","age":8,"sex":"M","jockey":"大野拓弥","ability":77,"suitability":85,"power":82,"style":5,"achievements":"金杯(G3)3着","desc":"8歳という年齢的な衰えは隠せない。中山実績はあるものの、物理的なピークアウトを迎えており、ここでの好走確率は低いと言わざるを得ない。"},{"id":"elton","gate":15,"name":"エルトンバローズ","age":5,"sex":"M","jockey":"西村淳也","ability":89,"suitability":80,"power":78,"style":3,"achievements":"毎日王冠(G2)","desc":"1800m巧者にとって2500mは距離延長の壁がある。加えて8枠15番という物理的ハンデ。スタミナを温存しながら距離ロスを抑えるのは至難の業。"},{"id":"tastiera","gate":16,"name":"タスティエーラ","age":5,"sex":"M","jockey":"松山弘平","ability":90,"suitability":92,"power":88,"style":4,"achievements":"23年日本ダービー(G1)","desc":"大外16番。中山巧者だが、この枠は絶望的。「魔の192m」で位置を取ろうとすれば脚を使い、控えれば届かない。能力だけでこの物理的不利を覆すのは困難。"}];
+    let currentCondition = 'good';
+
+    function getStyleLabel(style) {
+        if (style <= 1) return { label: '逃げ', color: 'bg-orange-500' };
+        if (style <= 4) return { label: '先行', color: 'bg-emerald-500' };
+        if (style <= 7) return { label: '差し', color: 'bg-blue-500' };
+        return { label: '追込', color: 'bg-purple-500' };
+    }
+
+    function getWeight(age, sex) {
+        let weight = 58;
+        if (age === 3) weight = 56;
+        if (sex === 'F') weight -= 2;
+        return weight + 'kg';
+    }
+
+    function getGateColor(gate) {
+        if (gate === 1 || gate === 2) return 'bg-white text-gray-900 border-gray-300';
+        if (gate === 3 || gate === 4) return 'bg-gray-900 text-white border-gray-600';
+        if (gate === 5 || gate === 6) return 'bg-red-600 text-white border-red-500';
+        if (gate === 7 || gate === 8) return 'bg-blue-600 text-white border-blue-500';
+        if (gate === 9 || gate === 10) return 'bg-yellow-400 text-gray-900 border-yellow-300';
+        if (gate === 11 || gate === 12) return 'bg-green-600 text-white border-green-500';
+        if (gate === 13 || gate === 14) return 'bg-orange-500 text-white border-orange-400';
+        if (gate === 15 || gate === 16) return 'bg-pink-400 text-white border-pink-300';
+        return 'bg-slate-700 text-white';
+    }
+
+    function calculate(horse, cond) {
+        const gate = horse.gate;
+        let gateScore = 0;
+        if (gate <= 6) gateScore = 15;
+        else if (gate <= 10) gateScore = 5;
+        else if (gate <= 14) gateScore = -10;
+        else gateScore = -20;
+
+        let baseCapability = 0;
+        let trackComment = "";
+
+        if (cond === 'good') {
+            baseCapability = (horse.ability * 0.7) + (horse.suitability * 0.3);
+            if (horse.suitability >= 95) trackComment = "絶好";
+            else if (horse.power < 80) trackComment = "歓迎";
+            else trackComment = "適合";
+        } else if (cond === 'yielding') {
+            baseCapability = (horse.ability * 0.4) + (horse.power * 0.3) + (horse.suitability * 0.3);
+            if (horse.power >= 85) trackComment = "好機";
+            else if (horse.power < 80) trackComment = "警戒";
+            else trackComment = "対応";
+        } else {
+            baseCapability = (horse.power * 0.6) + (horse.suitability * 0.4);
+            if (horse.power >= 90) trackComment = "鬼";
+            else if (horse.power < 82) trackComment = "苦戦";
+            else trackComment = "可";
+        }
+
+        let riskPenalty = 0;
+        if (gate >= 13 && horse.style <= 3) riskPenalty -= 3;
+        if (gate <= 4 && horse.style >= 8) riskPenalty -= 2;
+        if (horse.age === 3) riskPenalty += 2;
+        if (horse.id === 'meisho' && gate <= 6) riskPenalty += 2;
+
+        const totalScore = baseCapability + gateScore + riskPenalty;
+        let grade = 'C';
+        if (totalScore >= 100) grade = 'S';
+        else if (totalScore >= 90) grade = 'A';
+        else if (totalScore >= 80) grade = 'B';
+        else if (totalScore >= 70) grade = 'C';
+        else grade = 'D';
+        
+        let suitabilityScore = 0;
+        if (cond === 'good') suitabilityScore = horse.ability;
+        else if (cond === 'yielding') suitabilityScore = (horse.ability + horse.power) / 2;
+        else suitabilityScore = horse.power;
+        
+        let suitabilityRank = "B";
+        if (suitabilityScore >= 95) suitabilityRank = "S";
+        else if (suitabilityScore >= 90) suitabilityRank = "A";
+        else if (suitabilityScore >= 85) suitabilityRank = "B";
+        else if (suitabilityScore >= 80) suitabilityRank = "C";
+        else suitabilityRank = "D";
+
+        return { grade, score: total, trackComment, suitabilityRank };
+    }
+
+    function setCondition(cond) {
+        currentCondition = cond;
+        ['good','yielding','soft'].forEach(c => {
+            const btn = document.getElementById('btn-'+c);
+            if(c === cond) btn.className = 'flex-1 px-2 py-2 rounded text-sm font-bold bg-emerald-600 text-white transition-all';
+            else btn.className = 'flex-1 px-2 py-2 rounded text-sm font-bold bg-slate-800 text-slate-400 border border-slate-600 transition-all';
+        });
+        render();
+    }
+
+    function render() {
+        const container = document.getElementById('horse-list');
+        container.innerHTML = '';
+        
+        const sorted = [...horses].sort((a,b) => {
+            const resA = calculate(a, currentCondition);
+            const resB = calculate(b, currentCondition);
+            return resB.score - resA.score;
+        });
+
+        const colors = { S: 'bg-yellow-500 text-black', A: 'bg-red-500 text-white', B: 'bg-blue-500 text-white', C: 'bg-gray-500 text-white', D: 'bg-slate-700 text-gray-300' };
+
+        sorted.forEach(h => {
+            const res = calculate(h, currentCondition);
+            const badgeClass = colors[res.grade];
+            const style = getStyleLabel(h.style);
+            const gateColor = getGateColor(h.gate);
+            
+            const div = document.createElement('div');
+            div.className = 'bg-slate-800 rounded-xl border border-slate-700 p-4 flex flex-col sm:flex-row items-center gap-4';
+            div.innerHTML = `
+                <div class="flex-shrink-0 ${badgeClass} w-16 h-16 rounded-lg flex items-center justify-center text-3xl font-bold shadow-lg">${res.grade}</div>
+                <div class="flex-grow min-w-0 pt-1 sm:pt-0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded text-white ${style.color}">${style.label}</span>
+                        <h3 class="font-bold text-white text-base leading-none truncate">${h.name}</h3>
+                        <span class="text-xs text-slate-400">(${h.jockey})</span>
+                        <span class="flex-shrink-0 text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${getWeight(h.age, h.sex)}</span>
+                    </div>
+                    <div class="flex flex-col gap-1 text-sm text-slate-400">
+                        <div class="flex items-center gap-3">
+                             <span class="font-mono text-emerald-400 font-bold">Score: ${res.score.toFixed(0)}</span>
+                             <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">適性ランク: ${res.suitabilityRank}</span>
+                        </div>
+                        <div class="text-xs opacity-80 border-l-2 border-slate-600 pl-2 mt-1 truncate">${h.desc}</div>
+                    </div>
+                </div>
+                <div class="${gateColor} w-8 h-8 rounded flex items-center justify-center font-bold text-sm border shadow-sm">
+                    ${h.gate}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    render();
+  </script>
+</body>
+</html>
