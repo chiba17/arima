@@ -22,33 +22,72 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
         
-        /* Select Reset for Mark */
-        .mark-select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            text-align: center;
-            text-align-last: center;
+        /* Select Reset for Mark - making it transparent to overlay */
+        .mark-select-overlay {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
         }
-        
-        /* Error fallback */
-        #error-display { display: none; padding: 20px; color: #ef4444; background: #1e293b; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div id="root"></div>
     <script type="text/babel">
-        // Inject current state
-        const DEFAULT_HORSES_STATE = [{"id":"excite","gate":1,"name":"エキサイトバイオ","jockey":"荻野極","age":3,"sex":"M","ability":84,"suitability":88,"power":82,"style":9,"achievements":"25年菊花賞(G1)3着, 3歳1勝クラス","desc":"【大穴注意】1枠1番。能力値は劣るが、最短距離を回れる物理的メリットは計り知れない。展開が崩れれば3着の目はゼロではない。","myMark":"--"},{"id":"shin","gate":2,"name":"シンエンペラー","jockey":"坂井瑠星","age":4,"sex":"M","ability":93,"suitability":94,"power":95,"style":5,"achievements":"25年ネオムターフC(G2), ホープフルS(G1)2着","desc":"【推奨】絶好の黒枠。欧州血統のパワーと先行力は、今の中山のタフな馬場に完全に合致する。内々を立ち回れば勝ち負け必至。","myMark":"--"},{"id":"justin","gate":3,"name":"ジャスティンパレス","jockey":"団野大成","age":6,"sex":"M","ability":94,"suitability":89,"power":87,"style":6,"achievements":"23年天皇賞春(G1), 神戸新聞杯(G2)","desc":"【有力】3番枠は彼にとってベスト。ズブさを補う位置取りが可能。団野騎手の手腕でロスのない競馬ができれば圏内。","myMark":"--"},{"id":"museum","gate":4,"name":"ミュージアムマイル","jockey":"Ｃ.デムーロ","age":3,"sex":"M","ability":96,"suitability":99,"power":92,"style":3,"achievements":"25年皐月賞(G1), 天皇賞秋(G1)2着","desc":"【本命級】皐月賞と同じ2枠4番。先行して抜け出す王道競馬が可能。3歳56kgの恩恵と、絶対的なコース適性で古馬を圧倒する。","myMark":"--"},{"id":"regaleira","gate":5,"name":"レガレイラ","jockey":"Ｃ.ルメール","age":4,"sex":"F","ability":98,"suitability":86,"power":83,"style":9,"achievements":"24年有馬記念(G1), ホープフルS(G1)","desc":"【高評価】能力はNo.1。後方脚質だが、ルメール騎手が5番枠からどう捌くか。中団につけられれば連覇は堅い。","myMark":"--"},{"id":"meisho","gate":6,"name":"メイショウタバル","jockey":"武豊","age":4,"sex":"M","ability":89,"suitability":85,"power":89,"style":0,"achievements":"25年宝塚記念(G1), 毎日杯(G3)","desc":"【展開の鍵】レジェンド武豊の手綱捌きでハナへ。マイペースなら残り目もあるが、マークは厳しくなる。","myMark":"--"},{"id":"sunrise_z","gate":7,"name":"サンライズジパング","jockey":"鮫島克駿","age":4,"sex":"M","ability":86,"suitability":86,"power":94,"style":6,"achievements":"みやこS(G3), 若駒S(L)","desc":"【重巧者】パワー型。馬場が渋れば評価急上昇。良馬場だとスピード負けする懸念あり。消耗戦なら浮上。","myMark":"--"},{"id":"chevalier","gate":8,"name":"シュヴァリエローズ","jockey":"北村友一","age":7,"sex":"M","ability":80,"suitability":81,"power":79,"style":4,"achievements":"京都記念(G2)3着","desc":"ベテランの味があるが、G1のここでは物理的能力値で見劣りする。展開の助けがあっても掲示板までか。","myMark":"--"},{"id":"danon","gate":9,"name":"ダノンデサイル","jockey":"戸崎圭太","age":4,"sex":"M","ability":95,"suitability":96,"power":88,"style":4,"achievements":"24年日本ダービー(G1), 京成杯(G3)","desc":"【対抗】ダービー馬。5枠9番は前に壁を作りやすく、かつ動きたい時に動ける好枠。操縦性の高さで中山を攻略する。","myMark":"--"},{"id":"cosmo","gate":10,"name":"コスモキュランダ","jockey":"横山武史","age":4,"sex":"M","ability":89,"suitability":97,"power":87,"style":8,"achievements":"弥生賞(G2), 皐月賞(G1)2着","desc":"【特注】中山マイスター。外目の枠だが、向こう正面から捲る彼にとっては動きやすい。横山武騎手の積極策に期待。","myMark":"--"},{"id":"mystery","gate":11,"name":"ミステリーウェイ","jockey":"松本大輝","age":7,"sex":"G","ability":78,"suitability":75,"power":85,"style":1,"achievements":"3勝クラス","desc":"外枠の逃げ馬は厳しい。ハナを主張すればスタミナを浪費し、控えれば持ち味が出ない。苦戦必至。","myMark":"--"},{"id":"meiner","gate":12,"name":"マイネルエンペラー","jockey":"丹内祐次","age":5,"sex":"M","ability":81,"suitability":84,"power":90,"style":7,"achievements":"3勝クラス","desc":"ゴールドシップ産駒。雨なら一考。良馬場スピード勝負では分が悪い。展開待ちの他力本願にならざるを得ない。","myMark":"--"},{"id":"admire","gate":13,"name":"アドマイヤテラ","jockey":"川田将雅","age":4,"sex":"M","ability":88,"suitability":88,"power":91,"style":5,"achievements":"茶臼山高原特別(2勝), 阿寒湖特別(2勝)","desc":"【危険】7枠に入ったことで距離ロスのリスク増大。川田騎手でも外々を回らされるとG1級相手には厳しい。","myMark":"--"},{"id":"arata","gate":14,"name":"アラタ","jockey":"大野拓弥","age":8,"sex":"M","ability":77,"suitability":85,"power":82,"style":5,"achievements":"金杯(G3)3着","desc":"8歳馬に7枠14番は酷。中山実績はあるが、物理的なピークアウトを迎えており、ここでの好走確率は統計的に低い。","myMark":"--"},{"id":"elton","gate":15,"name":"エルトンバローズ","jockey":"西村淳也","age":5,"sex":"M","ability":89,"suitability":80,"power":78,"style":3,"achievements":"毎日王冠(G2)","desc":"【消し】8枠15番は「死の枠」。距離適性の不安に加え、物理的な距離ロスが重なる二重苦。能力だけで覆すのは困難。","myMark":"--"},{"id":"tastiera","gate":16,"name":"タスティエーラ","jockey":"松山弘平","age":5,"sex":"M","ability":90,"suitability":92,"power":88,"style":4,"achievements":"23年日本ダービー(G1)","desc":"【大減点】大外16番。中山巧者だが、この枠は絶望的。最初のコーナーまでに好位を取ろうとすれば脚を使い、控えれば届かない。","myMark":"--"}];
-        const DEFAULT_CONDITION = "good";
+        // Inject current state as initial
+        const CURRENT_HORSES_STATE = [{"id":"excite","gate":1,"name":"エキサイトバイオ","jockey":"荻野極","age":3,"sex":"M","ability":84,"suitability":88,"power":82,"style":9,"achievements":"25年菊花賞(G1)3着, 3歳1勝クラス","desc":"【大穴注意】1枠1番。能力値は劣るが、最短距離を回れる物理的メリットは計り知れない。展開が崩れれば3着の目はゼロではない。","myMark":"--"},{"id":"shin","gate":2,"name":"シンエンペラー","jockey":"坂井瑠星","age":4,"sex":"M","ability":93,"suitability":94,"power":95,"style":5,"achievements":"25年ネオムターフC(G2), ホープフルS(G1)2着","desc":"【推奨】絶好の黒枠。欧州血統のパワーと先行力は、今の中山のタフな馬場に完全に合致する。内々を立ち回れば勝ち負け必至。","myMark":"--"},{"id":"justin","gate":3,"name":"ジャスティンパレス","jockey":"団野大成","age":6,"sex":"M","ability":94,"suitability":89,"power":87,"style":6,"achievements":"23年天皇賞春(G1), 神戸新聞杯(G2)","desc":"【有力】3番枠は彼にとってベスト。ズブさを補う位置取りが可能。団野騎手の手腕でロスのない競馬ができれば圏内。","myMark":"--"},{"id":"museum","gate":4,"name":"ミュージアムマイル","jockey":"Ｃ.デムーロ","age":3,"sex":"M","ability":96,"suitability":99,"power":92,"style":3,"achievements":"25年皐月賞(G1), 天皇賞秋(G1)2着","desc":"【本命級】皐月賞と同じ2枠4番。先行して抜け出す王道競馬が可能。3歳56kgの恩恵と、絶対的なコース適性で古馬を圧倒する。","myMark":"--"},{"id":"regaleira","gate":5,"name":"レガレイラ","jockey":"Ｃ.ルメール","age":4,"sex":"F","ability":98,"suitability":86,"power":83,"style":9,"achievements":"24年有馬記念(G1), ホープフルS(G1)","desc":"【高評価】能力はNo.1。後方脚質だが、ルメール騎手が5番枠からどう捌くか。中団につけられれば連覇は堅い。","myMark":"--"},{"id":"meisho","gate":6,"name":"メイショウタバル","jockey":"武豊","age":4,"sex":"M","ability":89,"suitability":85,"power":89,"style":0,"achievements":"25年宝塚記念(G1), 毎日杯(G3)","desc":"【展開の鍵】レジェンド武豊の手綱捌きでハナへ。マイペースなら残り目もあるが、マークは厳しくなる。","myMark":"--"},{"id":"sunrise_z","gate":7,"name":"サンライズジパング","jockey":"鮫島克駿","age":4,"sex":"M","ability":86,"suitability":86,"power":94,"style":6,"achievements":"みやこS(G3), 若駒S(L)","desc":"【重巧者】パワー型。馬場が渋れば評価急上昇。良馬場だとスピード負けする懸念あり。消耗戦なら浮上。","myMark":"--"},{"id":"chevalier","gate":8,"name":"シュヴァリエローズ","jockey":"北村友一","age":7,"sex":"M","ability":80,"suitability":81,"power":79,"style":4,"achievements":"京都記念(G2)3着","desc":"ベテランの味があるが、G1のここでは物理的能力値で見劣りする。展開の助けがあっても掲示板までか。","myMark":"--"},{"id":"danon","gate":9,"name":"ダノンデサイル","jockey":"戸崎圭太","age":4,"sex":"M","ability":95,"suitability":96,"power":88,"style":4,"achievements":"24年日本ダービー(G1), 京成杯(G3)","desc":"【対抗】ダービー馬。5枠9番は前に壁を作りやすく、かつ動きたい時に動ける好枠。操縦性の高さで中山を攻略する。","myMark":"--"},{"id":"cosmo","gate":10,"name":"コスモキュランダ","jockey":"横山武史","age":4,"sex":"M","ability":89,"suitability":97,"power":87,"style":8,"achievements":"弥生賞(G2), 皐月賞(G1)2着","desc":"【特注】中山マイスター。外目の枠だが、向こう正面から捲る彼にとっては動きやすい。横山武騎手の積極策に期待。","myMark":"--"},{"id":"mystery","gate":11,"name":"ミステリーウェイ","jockey":"松本大輝","age":7,"sex":"G","ability":78,"suitability":75,"power":85,"style":1,"achievements":"3勝クラス","desc":"外枠の逃げ馬は厳しい。ハナを主張すればスタミナを浪費し、控えれば持ち味が出ない。苦戦必至。","myMark":"--"},{"id":"meiner","gate":12,"name":"マイネルエンペラー","jockey":"丹内祐次","age":5,"sex":"M","ability":81,"suitability":84,"power":90,"style":7,"achievements":"3勝クラス","desc":"ゴールドシップ産駒。雨なら一考。良馬場スピード勝負では分が悪い。展開待ちの他力本願にならざるを得ない。","myMark":"--"},{"id":"admire","gate":13,"name":"アドマイヤテラ","jockey":"川田将雅","age":4,"sex":"M","ability":88,"suitability":88,"power":91,"style":5,"achievements":"茶臼山高原特別(2勝), 阿寒湖特別(2勝)","desc":"【危険】7枠に入ったことで距離ロスのリスク増大。川田騎手でも外々を回らされるとG1級相手には厳しい。","myMark":"--"},{"id":"arata","gate":14,"name":"アラタ","jockey":"大野拓弥","age":8,"sex":"M","ability":77,"suitability":85,"power":82,"style":5,"achievements":"金杯(G3)3着","desc":"8歳馬に7枠14番は酷。中山実績はあるが、物理的なピークアウトを迎えており、ここでの好走確率は統計的に低い。","myMark":"--"},{"id":"elton","gate":15,"name":"エルトンバローズ","jockey":"西村淳也","age":5,"sex":"M","ability":89,"suitability":80,"power":78,"style":3,"achievements":"毎日王冠(G2)","desc":"【消し】8枠15番は「死の枠」。距離適性の不安に加え、物理的な距離ロスが重なる二重苦。能力だけで覆すのは困難。","myMark":"--"},{"id":"tastiera","gate":16,"name":"タスティエーラ","jockey":"松山弘平","age":5,"sex":"M","ability":90,"suitability":92,"power":88,"style":4,"achievements":"23年日本ダービー(G1)","desc":"【大減点】大外16番。中山巧者だが、この枠は絶望的。最初のコーナーまでに好位を取ろうとすれば脚を使い、控えれば届かない。","myMark":"--"}];
+        const CURRENT_CONDITION = "good";
         
+        // --- Injected Code ---
         
         const { useState, useMemo, useEffect } = React;
 
-        // --- Safe Script Tags for Portable Generation ---
-        // 文字列としてスクリプトタグを書く際に、ブラウザが誤認しないように分割する
-        const SCRIPT_OPEN = '<' + 'script';
-        const SCRIPT_CLOSE = '<' + '/' + 'script>';
+        // --- Helper Functions (Global Scope for access) ---
+        
+        const getGateColor = (gate) => {
+            if (gate === 1 || gate === 2) return 'bg-white text-gray-900 border-gray-300';
+            if (gate === 3 || gate === 4) return 'bg-gray-900 text-white border-gray-600';
+            if (gate === 5 || gate === 6) return 'bg-red-600 text-white border-red-500';
+            if (gate === 7 || gate === 8) return 'bg-blue-600 text-white border-blue-500';
+            if (gate === 9 || gate === 10) return 'bg-yellow-400 text-gray-900 border-yellow-300';
+            if (gate === 11 || gate === 12) return 'bg-green-600 text-white border-green-500';
+            if (gate === 13 || gate === 14) return 'bg-orange-500 text-white border-orange-400';
+            if (gate === 15 || gate === 16) return 'bg-pink-400 text-white border-pink-300';
+            return 'bg-slate-700 text-white';
+        };
+
+        const getStyleLabel = (style) => {
+            if (style <= 1) return { label: '逃げ', color: 'bg-orange-500' };
+            if (style <= 4) return { label: '先行', color: 'bg-emerald-500' };
+            if (style <= 7) return { label: '差し', color: 'bg-blue-500' };
+            return { label: '追込', color: 'bg-purple-500' };
+        };
+
+        const getWeight = (age, sex) => {
+            let weight = 58;
+            if (age === 3) weight = 56;
+            if (sex === 'F') weight -= 2;
+            return weight + 'kg';
+        };
+
+        // Mark Options - Define globally
+        const MARKS = [
+            { label: '--', color: 'bg-slate-800 text-slate-500 border-slate-600' },
+            { label: '◎', color: 'bg-white text-red-600 border-red-600 font-extrabold' },
+            { label: '◯', color: 'bg-white text-blue-600 border-blue-600 font-extrabold' },
+            { label: '▲', color: 'bg-white text-black border-black font-extrabold' },
+            { label: '△', color: 'bg-white text-black border-black font-normal' },
+            { label: '☆', color: 'bg-yellow-400 text-black border-yellow-500 font-extrabold' },
+            { label: '消', color: 'bg-gray-500 text-gray-300 border-gray-400' },
+        ];
+        
+        const getMarkStyle = (label) => {
+            const m = MARKS.find(m => m.label === label);
+            return m ? m.color : MARKS[0].color;
+        };
 
         // Icons
         const IconWrapper = ({ children, size = 20, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
@@ -63,8 +102,6 @@
         const X = (p) => <IconWrapper {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></IconWrapper>;
         const List = (p) => <IconWrapper {...p}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></IconWrapper>;
         const Settings = (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></IconWrapper>;
-        const Eye = (p) => <IconWrapper {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></IconWrapper>;
-        const EyeOff = (p) => <IconWrapper {...p}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></IconWrapper>;
         const ArrowDownUp = (p) => <IconWrapper {...p}><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></IconWrapper>; 
         const RefreshCw = (p) => <IconWrapper {...p}><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></IconWrapper>;
         const AlertTriangle = (p) => <IconWrapper {...p}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconWrapper>;
@@ -79,14 +116,6 @@
         const Plus = (p) => <IconWrapper {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></IconWrapper>;
         const Share2 = (p) => <IconWrapper {...p}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></IconWrapper>;
 
-        // ------------------------------------------------------------------
-        // Data & Logic (Finalized Gate)
-        // ------------------------------------------------------------------
-
-        // パラメータ定義:
-        // ability: 絶対能力値（スピード・瞬発力ベース）
-        // suitability: コース適性（器用さ・立ち回り・中山実績）
-        // power: パワー・スタミナ（重馬場適性・消耗戦耐性）
         const FIXED_HORSES = [
             { id: 'excite', gate: 1, name: 'エキサイトバイオ', jockey: '荻野極', age: 3, sex: 'M', ability: 84, suitability: 88, power: 82, style: 9, achievements: '25年菊花賞(G1)3着, 3歳1勝クラス', desc: '【大穴注意】1枠1番。能力値は劣るが、最短距離を回れる物理的メリットは計り知れない。展開が崩れれば3着の目はゼロではない。' },
             { id: 'shin', gate: 2, name: 'シンエンペラー', jockey: '坂井瑠星', age: 4, sex: 'M', ability: 93, suitability: 94, power: 95, style: 5, achievements: '25年ネオムターフC(G2), ホープフルS(G1)2着', desc: '【推奨】絶好の黒枠。欧州血統のパワーと先行力は、今の中山のタフな馬場に完全に合致する。内々を立ち回れば勝ち負け必至。' },
@@ -106,98 +135,41 @@
             { id: 'tastiera', gate: 16, name: 'タスティエーラ', jockey: '松山弘平', age: 5, sex: 'M', ability: 90, suitability: 92, power: 88, style: 4, achievements: '23年日本ダービー(G1)', desc: '【大減点】大外16番。中山巧者だが、この枠は絶望的。最初のコーナーまでに好位を取ろうとすれば脚を使い、控えれば届かない。' },
         ];
 
-        // Mark Options
-        const MARKS = [
-            { label: '--', color: 'bg-slate-700 text-slate-400 border-slate-600' },
-            { label: '◎', color: 'bg-white text-red-600 border-red-600 font-extrabold' },
-            { label: '◯', color: 'bg-white text-blue-600 border-blue-600 font-extrabold' },
-            { label: '▲', color: 'bg-white text-black border-black font-extrabold' },
-            { label: '△', color: 'bg-white text-black border-black font-normal' },
-            { label: '☆', color: 'bg-yellow-400 text-black border-yellow-500 font-extrabold' },
-            { label: '消', color: 'bg-gray-400 text-gray-700 border-gray-500' },
-        ];
-
-        // Style Helper
-        const getStyleLabel = (style) => {
-            if (style <= 1) return { label: '逃げ', color: 'bg-orange-500' };
-            if (style <= 4) return { label: '先行', color: 'bg-emerald-500' };
-            if (style <= 7) return { label: '差し', color: 'bg-blue-500' };
-            return { label: '追込', color: 'bg-purple-500' };
-        };
-
-        const getWeight = (age, sex) => {
-            let weight = 58;
-            if (age === 3) weight = 56;
-            if (sex === 'F') weight -= 2;
-            return weight + 'kg';
-        };
-
-        const getGateColor = (gate) => {
-            if (gate === 1 || gate === 2) return 'bg-white text-gray-900 border-gray-300';
-            if (gate === 3 || gate === 4) return 'bg-gray-900 text-white border-gray-600';
-            if (gate === 5 || gate === 6) return 'bg-red-600 text-white border-red-500';
-            if (gate === 7 || gate === 8) return 'bg-blue-600 text-white border-blue-500';
-            if (gate === 9 || gate === 10) return 'bg-yellow-400 text-gray-900 border-yellow-300';
-            if (gate === 11 || gate === 12) return 'bg-green-600 text-white border-green-500';
-            if (gate === 13 || gate === 14) return 'bg-orange-500 text-white border-orange-400';
-            if (gate === 15 || gate === 16) return 'bg-pink-400 text-white border-pink-300';
-            return 'bg-slate-700 text-white';
-        };
-
-        // ------------------------------------------------------------------
-        // Algorithm: Structural Analysis Engine
-        // ------------------------------------------------------------------
         const calculateAnalysis = (horse, trackCondition) => {
             const gate = horse.gate;
-            
-            // 枠順係数: 中山2500mの物理的有利不利
             let gateScore = 0;
             if (gate <= 6) { gateScore = 15; } 
             else if (gate <= 10) { gateScore = 5; } 
             else if (gate <= 14) { gateScore = -10; } 
-            else { gateScore = -20; } // 15,16番は致命的
+            else { gateScore = -20; } 
 
-            // 1. 基礎スコア (Base Capability)
             let baseCapability = 0;
             let trackComment = "";
 
             if (trackCondition === 'good') {
-                // 良馬場: 能力(Ability)重視
                 baseCapability = (horse.ability * 0.7) + (horse.suitability * 0.3);
                 if (horse.suitability >= 95) trackComment = "絶好";
                 else if (horse.power < 80) trackComment = "歓迎";
                 else trackComment = "適合";
-
             } else if (trackCondition === 'yielding') {
-                // 稍重: バランス
                 baseCapability = (horse.ability * 0.4) + (horse.power * 0.3) + (horse.suitability * 0.3);
                 if (horse.power >= 85) trackComment = "好機";
                 else if (horse.power < 80) trackComment = "警戒";
                 else trackComment = "対応";
-
             } else { // soft
-                // 重馬場: パワー(Power)重視
                 baseCapability = (horse.power * 0.6) + (horse.suitability * 0.4);
                 if (horse.power >= 90) trackComment = "鬼";
                 else if (horse.power < 82) trackComment = "苦戦";
                 else trackComment = "可";
             }
 
-            // 2. リスク補正
             let riskPenalty = 0;
-            // 外枠の先行馬
             if (gate >= 13 && horse.style <= 3) { riskPenalty -= 3; }
-            // 内枠の追込馬
             if (gate <= 4 && horse.style >= 8) { riskPenalty -= 2; }
-            // 3歳馬ボーナス
             if (horse.age === 3) riskPenalty += 2;
-            // 逃げ馬ボーナス(内枠時)
             if (horse.id === 'meisho' && gate <= 6) riskPenalty += 2;
 
-            // 総合スコア算出
             const totalScore = baseCapability + gateScore + riskPenalty;
-
-            // 最終グレード判定
             let grade = 'C';
             if (totalScore >= 108) grade = 'S'; 
             else if (totalScore >= 100) grade = 'A';
@@ -205,7 +177,6 @@
             else if (totalScore >= 84) grade = 'C';
             else grade = 'D';
 
-            // 適性ランク
             let suitabilityScore = 0;
             if (trackCondition === 'good') suitabilityScore = horse.ability;
             else if (trackCondition === 'yielding') suitabilityScore = (horse.ability + horse.power) / 2;
@@ -244,108 +215,8 @@
             return <div className={`flex items-center justify-center rounded-lg font-bold shadow-lg ${finalClass} ${sizeClass}`}>{grade}</div>;
         };
 
-        // ------------------------------------------------------------------
-        // Modals
-        // ------------------------------------------------------------------
-
-        const RaceGuideModal = ({ onClose }) => {
-            const [imageError, setImageError] = useState(false);
-            useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = 'unset'; }; }, []);
-
-            return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-slate-800 w-full max-w-4xl rounded-xl border border-slate-700 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-                        <div className="bg-slate-900 p-3 border-b border-slate-700 flex justify-between items-center sticky top-0 z-10">
-                            <h2 className="text-lg font-bold text-white flex items-center gap-2"><BookOpen size={20} className="text-purple-400" /> レース構造解析</h2>
-                            <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white"><X size={24} /></button>
-                        </div>
-                        <div className="overflow-y-auto">
-                            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900 p-6 border-b border-slate-700">
-                                <span className="text-purple-400 font-bold text-sm tracking-wider uppercase mb-1 block">Introduction</span>
-                                <h3 className="text-xl font-bold text-white mb-2">有馬記念の「勝敗」を決める物理法則</h3>
-                                <p className="text-slate-300 text-sm leading-relaxed max-w-3xl">
-                                    多くのファンは「どの馬が一番速いか」を議論しますが、研究者の視点では<strong>「どの馬が最も効率的にエネルギーを使えるか（物理的構造）」</strong>が重要です。中山2500mという特殊な系（System）において支配的な3つの変数を解説します。
-                                </p>
-                            </div>
-                            <div className="p-4 space-y-6">
-                                
-                                <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 flex flex-col items-center">
-                                    <h4 className="text-sm font-bold text-white mb-4 w-full border-l-4 border-purple-500 pl-3">コース構造図解 (Course Anatomy)</h4>
-                                    
-                                    <div className="w-full relative flex justify-center mb-4">
-                                        {!imageError ? (
-                                            <div className="flex flex-col items-center w-full">
-                                                <img 
-                                                    src="06_t2500.jpg" 
-                                                    alt="中山芝2500mコース図" 
-                                                    className="w-full h-auto max-h-[300px] object-contain rounded border border-slate-600"
-                                                    onError={() => setImageError(true)}
-                                                />
-                                                <p className="text-[10px] text-slate-500 mt-1">※画像が表示されない場合は、ダウンロードしたHTMLと同じ場所に「06_t2500.jpg」を保存してください。</p>
-                                            </div>
-                                        ) : (
-                                            <svg width="100%" height="280" viewBox="0 0 400 320">
-                                                <defs>
-                                                    <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 L0,0" fill="#34d399" /></marker>
-                                                    <linearGradient id="slopeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                        <stop offset="0%" stopColor="#3b82f6" /><stop offset="70%" stopColor="#3b82f6" /><stop offset="85%" stopColor="#fbbf24" /><stop offset="100%" stopColor="#ef4444" />
-                                                    </linearGradient>
-                                                </defs>
-                                                <path d="M250,80 Q350,80 350,150" fill="none" stroke="#475569" strokeWidth="2" strokeDasharray="4,4" />
-                                                <path d="M370,50 Q360,70 330,85" fill="none" stroke="#475569" strokeWidth="1" strokeDasharray="2,2" />
-                                                <rect x="40" y="80" width="280" height="160" rx="80" ry="80" fill="none" stroke="#1e293b" strokeWidth="12" />
-                                                <rect x="40" y="80" width="280" height="160" rx="80" ry="80" fill="none" stroke="#34d399" strokeWidth="4" />
-                                                <circle cx="370" cy="50" r="5" fill="#ef4444" stroke="white" strokeWidth="2" />
-                                                <text x="360" y="40" fill="#ef4444" fontSize="12" fontWeight="bold" textAnchor="end">START</text>
-                                                <text x="360" y="52" fill="#94a3b8" fontSize="10" textAnchor="end">外回り3角手前</text>
-                                                <line x1="370" y1="50" x2="310" y2="90" stroke="#ef4444" strokeWidth="2" strokeDasharray="3,3" markerEnd="url(#arrow)" />
-                                                <text x="345" y="65" fill="#ef4444" fontSize="11" fontWeight="bold" transform="rotate(33 345,65)">192m</text>
-                                                <line x1="180" y1="230" x2="180" y2="250" stroke="#fbbf24" strokeWidth="5" />
-                                                <text x="165" y="265" fill="#fbbf24" fontSize="12" fontWeight="bold">GOAL</text>
-                                                <path d="M180,80 L190,80" stroke="none" markerEnd="url(#arrow)" /> 
-                                                <path d="M180,240 L170,240" stroke="none" markerEnd="url(#arrow)" /> 
-                                                <path d="M40,160 L40,150" stroke="none" markerEnd="url(#arrow)" transform="rotate(0 40,160)" /> 
-                                                <rect x="200" y="245" width="80" height="6" fill="url(#slopeGradient)" opacity="0.8" />
-                                                <text x="210" y="260" fill="#fbbf24" fontSize="10" fontWeight="bold">↑ 急坂 (200m-70m)</text>
-                                                <text x="150" y="70" fill="#94a3b8" fontSize="10">向こう正面</text>
-                                                <text x="20" y="160" fill="#94a3b8" fontSize="10" textAnchor="middle">1-2角</text>
-                                                <text x="340" y="160" fill="#94a3b8" fontSize="10" textAnchor="middle">3-4角 (内)</text>
-                                            </svg>
-                                        )}
-                                    </div>
-                                    <div className="text-sm text-slate-300 bg-slate-800 p-3 rounded w-full border border-slate-600 mb-6 leading-relaxed">
-                                        <strong>コース概要:</strong><br/>
-                                        中山芝2500mは、外回りコースの3コーナー手前からスタートし、最初のコーナーまでわずか192mしかないため、外枠の馬は距離ロスを強いられやすい構造になっています。その後、内回りコースに入り、コーナーを合計6回回る小回りなレイアウトです。ゴール前には高低差2.2mの急坂が待ち受けており、これを2度登るタフな設定が、スピードだけでなく、立ち回りの器用さと底知れぬスタミナを要求します。
-                                    </div>
-                                </div>
-
-                                <section className="space-y-3">
-                                    <h4 className="flex items-center gap-2 text-emerald-400 font-bold text-sm border-b border-slate-700 pb-2"><Compass size={16} /> 変数A：枠順の幾何学</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><h5 className="font-bold text-white mb-1 text-sm">「魔の192m」と遠心力</h5><p className="text-slate-300 text-sm leading-relaxed">スタートから最初のカーブまで192mしかありません。外枠（特に13番以降）の馬は、幾何学的に鋭角なラインでコーナーに侵入せざるを得ません。内に入れるには急加速して脚を使うか、外を回らされて遠心力でスタミナを削られるかの二択を迫られます。</p></div>
-                                        <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><h5 className="font-bold text-white mb-1 text-sm">推奨される戦略</h5><ul className="text-slate-300 text-sm space-y-1 list-disc list-inside"><li><span className="text-emerald-400">内枠 (1-6)</span>: 最短距離を走れるため、能力が多少劣っても好走可能。</li><li><span className="text-red-400">外枠 (13-16)</span>: 能力Sクラスでない限り、物理的ハンデを覆すのは困難。</li></ul></div>
-                                    </div>
-                                </section>
-                                <section className="space-y-3">
-                                    <h4 className="flex items-center gap-2 text-blue-400 font-bold text-sm border-b border-slate-700 pb-2"><Activity size={16} /> 変数B：脚質と機動力</h4>
-                                    <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><div className="flex flex-col md:flex-row gap-4"><div className="flex-1"><h5 className="font-bold text-white mb-1 text-sm">4コーナーの物理的境界線</h5><p className="text-slate-300 text-sm leading-relaxed">直線が310mしかないため、4コーナー出口で先頭集団（5番手以内）にいなければ、物理的に届きません。後方一気（追込）が決まるのは、前の馬がハイペースで自滅した時のみです。したがって<strong>「自ら動いて位置を取れる先行・差し馬」</strong>が最も安全な投資対象となります。</p></div></div></div>
-                                </section>
-                                <section className="space-y-3">
-                                    <h4 className="flex items-center gap-2 text-yellow-500 font-bold text-sm border-b border-slate-700 pb-2"><Layers size={16} /> 変数C：馬場適性のエネルギー効率</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-emerald-500"><h5 className="font-bold text-white mb-1">良馬場</h5><p className="text-slate-300">SPEED優位。上がり34秒台の勝負。</p></div>
-                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-blue-500"><h5 className="font-bold text-white mb-1">稍重</h5><p className="text-slate-300">BALANCE優位。持続力が問われる。</p></div>
-                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-red-500"><h5 className="font-bold text-white mb-1">重・不良</h5><p className="text-slate-300">POWER優位。欧州血統やステイヤーが激走。</p></div>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const HorseManagerModal = ({ horses, setHorses, onClose }) => {
+        // --- Race Card Modal ---
+        const RaceCardModal = ({ onClose, horses }) => {
             useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = 'unset'; }; }, []);
 
             const getWakuNum = (gate) => Math.ceil(gate / 2);
@@ -392,6 +263,7 @@
             );
         };
 
+        // --- Betting Memo Modal ---
         const BettingMemoModal = ({ onClose, horses }) => {
             const [bets, setBets] = useState(() => {
                 try {
@@ -461,19 +333,17 @@
                     const s3 = method === 'box' ? [] : selection.row3;
                     
                     if (type === 'umaren' || type === 'wide') {
-                        if(type === 'umaren' || type === 'wide') {
-                            const pairs = new Set();
-                            for(let i of s1) {
-                                for(let j of s2) {
-                                    if(i !== j) {
-                                        const min = Math.min(i, j);
-                                        const max = Math.max(i, j);
-                                        pairs.add(`${min}-${max}`);
-                                    }
+                        const pairs = new Set();
+                        for(let i of s1) {
+                            for(let j of s2) {
+                                if(i !== j) {
+                                    const min = Math.min(i, j);
+                                    const max = Math.max(i, j);
+                                    pairs.add(`${min}-${max}`);
                                 }
                             }
-                            return pairs.size;
-                         }
+                        }
+                        return pairs.size;
 
                     } else if (type === 'umatan') {
                         for(let i of s1) {
@@ -681,11 +551,107 @@
             );
         };
 
+        const RaceGuideModal = ({ onClose }) => {
+            const [imageError, setImageError] = useState(false);
+            useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = 'unset'; }; }, []);
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-slate-800 w-full max-w-4xl rounded-xl border border-slate-700 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                        <div className="bg-slate-900 p-3 border-b border-slate-700 flex justify-between items-center sticky top-0 z-10">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2"><BookOpen size={20} className="text-purple-400" /> レース構造解析</h2>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white"><X size={24} /></button>
+                        </div>
+                        <div className="overflow-y-auto">
+                            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900 p-6 border-b border-slate-700">
+                                <span className="text-purple-400 font-bold text-sm tracking-wider uppercase mb-1 block">Introduction</span>
+                                <h3 className="text-xl font-bold text-white mb-2">有馬記念の「勝敗」を決める物理法則</h3>
+                                <p className="text-slate-300 text-sm leading-relaxed max-w-3xl">
+                                    多くのファンは「どの馬が一番速いか」を議論しますが、研究者の視点では<strong>「どの馬が最も効率的にエネルギーを使えるか（物理的構造）」</strong>が重要です。中山2500mという特殊な系（System）において支配的な3つの変数を解説します。
+                                </p>
+                            </div>
+                            <div className="p-4 space-y-6">
+                                <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 flex flex-col items-center">
+                                    <h4 className="text-sm font-bold text-white mb-4 w-full border-l-4 border-purple-500 pl-3">コース構造図解 (Course Anatomy)</h4>
+                                    
+                                    <div className="w-full relative flex justify-center mb-4">
+                                        {!imageError ? (
+                                            <div className="flex flex-col items-center w-full">
+                                                <img 
+                                                    src="06_t2500.jpg" 
+                                                    alt="中山芝2500mコース図" 
+                                                    className="w-full h-auto max-h-[300px] object-contain rounded border border-slate-600"
+                                                    onError={() => setImageError(true)}
+                                                />
+                                                <p className="text-[10px] text-slate-500 mt-1">※画像が表示されない場合は、ダウンロードしたHTMLと同じ場所に「06_t2500.jpg」を保存してください。</p>
+                                            </div>
+                                        ) : (
+                                            <svg width="100%" height="280" viewBox="0 0 400 320">
+                                                <defs>
+                                                    <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 L0,0" fill="#34d399" /></marker>
+                                                    <linearGradient id="slopeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                        <stop offset="0%" stopColor="#3b82f6" /><stop offset="70%" stopColor="#3b82f6" /><stop offset="85%" stopColor="#fbbf24" /><stop offset="100%" stopColor="#ef4444" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <path d="M250,80 Q350,80 350,150" fill="none" stroke="#475569" strokeWidth="2" strokeDasharray="4,4" />
+                                                <path d="M370,50 Q360,70 330,85" fill="none" stroke="#475569" strokeWidth="1" strokeDasharray="2,2" />
+                                                <rect x="40" y="80" width="280" height="160" rx="80" ry="80" fill="none" stroke="#1e293b" strokeWidth="12" />
+                                                <rect x="40" y="80" width="280" height="160" rx="80" ry="80" fill="none" stroke="#34d399" strokeWidth="4" />
+                                                <circle cx="370" cy="50" r="5" fill="#ef4444" stroke="white" strokeWidth="2" />
+                                                <text x="360" y="40" fill="#ef4444" fontSize="12" fontWeight="bold" textAnchor="end">START</text>
+                                                <text x="360" y="52" fill="#94a3b8" fontSize="10" textAnchor="end">外回り3角手前</text>
+                                                <line x1="370" y1="50" x2="310" y2="90" stroke="#ef4444" strokeWidth="2" strokeDasharray="3,3" markerEnd="url(#arrow)" />
+                                                <text x="345" y="65" fill="#ef4444" fontSize="11" fontWeight="bold" transform="rotate(33 345,65)">192m</text>
+                                                <line x1="180" y1="230" x2="180" y2="250" stroke="#fbbf24" strokeWidth="5" />
+                                                <text x="165" y="265" fill="#fbbf24" fontSize="12" fontWeight="bold">GOAL</text>
+                                                <path d="M180,80 L190,80" stroke="none" markerEnd="url(#arrow)" /> 
+                                                <path d="M180,240 L170,240" stroke="none" markerEnd="url(#arrow)" /> 
+                                                <path d="M40,160 L40,150" stroke="none" markerEnd="url(#arrow)" transform="rotate(0 40,160)" /> 
+                                                <rect x="200" y="245" width="80" height="6" fill="url(#slopeGradient)" opacity="0.8" />
+                                                <text x="210" y="260" fill="#fbbf24" fontSize="10" fontWeight="bold">↑ 急坂 (200m-70m)</text>
+                                                <text x="150" y="70" fill="#94a3b8" fontSize="10">向こう正面</text>
+                                                <text x="20" y="160" fill="#94a3b8" fontSize="10" textAnchor="middle">1-2角</text>
+                                                <text x="340" y="160" fill="#94a3b8" fontSize="10" textAnchor="middle">3-4角 (内)</text>
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <div className="text-sm text-slate-300 bg-slate-800 p-3 rounded w-full border border-slate-600 mb-6 leading-relaxed">
+                                        <strong>コース概要:</strong><br/>
+                                        中山芝2500mは、外回りコースの3コーナー手前からスタートし、最初のコーナーまでわずか192mしかないため、外枠の馬は距離ロスを強いられやすい構造になっています。その後、内回りコースに入り、コーナーを合計6回回る小回りなレイアウトです。ゴール前には高低差2.2mの急坂が待ち受けており、これを2度登るタフな設定が、スピードだけでなく、立ち回りの器用さと底知れぬスタミナを要求します。
+                                    </div>
+                                </div>
+
+                                <section className="space-y-3">
+                                    <h4 className="flex items-center gap-2 text-emerald-400 font-bold text-sm border-b border-slate-700 pb-2"><Compass size={16} /> 変数A：枠順の幾何学</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><h5 className="font-bold text-white mb-1 text-sm">「魔の192m」と遠心力</h5><p className="text-slate-300 text-sm leading-relaxed">スタートから最初のカーブまで192mしかありません。外枠（特に13番以降）の馬は、幾何学的に鋭角なラインでコーナーに侵入せざるを得ません。内に入れるには急加速して脚を使うか、外を回らされて遠心力でスタミナを削られるかの二択を迫られます。</p></div>
+                                        <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><h5 className="font-bold text-white mb-1 text-sm">推奨される戦略</h5><ul className="text-slate-300 text-sm space-y-1 list-disc list-inside"><li><span className="text-emerald-400">内枠 (1-6)</span>: 最短距離を走れるため、能力が多少劣っても好走可能。</li><li><span className="text-red-400">外枠 (13-16)</span>: 能力Sクラスでない限り、物理的ハンデを覆すのは困難。</li></ul></div>
+                                    </div>
+                                </section>
+                                <section className="space-y-3">
+                                    <h4 className="flex items-center gap-2 text-blue-400 font-bold text-sm border-b border-slate-700 pb-2"><Activity size={16} /> 変数B：脚質と機動力</h4>
+                                    <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><div className="flex flex-col md:flex-row gap-4"><div className="flex-1"><h5 className="font-bold text-white mb-1 text-sm">4コーナーの物理的境界線</h5><p className="text-slate-300 text-sm leading-relaxed">直線が310mしかないため、4コーナー出口で先頭集団（5番手以内）にいなければ、物理的に届きません。後方一気（追込）が決まるのは、前の馬がハイペースで自滅した時のみです。したがって<strong>「自ら動いて位置を取れる先行・差し馬」</strong>が最も安全な投資対象となります。</p></div></div></div>
+                                </section>
+                                <section className="space-y-3">
+                                    <h4 className="flex items-center gap-2 text-yellow-500 font-bold text-sm border-b border-slate-700 pb-2"><Layers size={16} /> 変数C：馬場適性のエネルギー効率</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-emerald-500"><h5 className="font-bold text-white mb-1">良馬場</h5><p className="text-slate-300">SPEED優位。上がり34秒台の勝負。</p></div>
+                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-blue-500"><h5 className="font-bold text-white mb-1">稍重</h5><p className="text-slate-300">BALANCE優位。持続力が問われる。</p></div>
+                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-red-500"><h5 className="font-bold text-white mb-1">重・不良</h5><p className="text-slate-300">POWER優位。欧州血統やステイヤーが激走。</p></div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const ArimaAnalyzer = () => {
-            const [trackCondition, setTrackCondition] = useState(DEFAULT_CONDITION);
+            const [trackCondition, setTrackCondition] = useState('good');
             const [showRaceGuide, setShowRaceGuide] = useState(false);
             const [showBettingMemo, setShowBettingMemo] = useState(false); 
-            const [showRaceCard, setShowRaceCard] = useState(false);
+            const [showRaceCard, setShowRaceCard] = useState(false); 
             const [expandedHorseId, setExpandedHorseId] = useState(null);
             
             const [horses, setHorses] = useState(() => {
@@ -729,54 +695,42 @@
                 if (e.detail === 3) {
                     try {
                         const scriptContent = document.getElementById('main-script').textContent;
+                        // Avoid using outerHTML to prevent issues with current React render state.
+                        // We construct a clean HTML string.
                         const styleContent = document.getElementsByTagName('style')[0].innerHTML;
-                        
-                        // We need to inject the horses state into the exported HTML
-                        // Replace the const horses = ... line in scriptContent
-                        // to utilize current state including marks
-                        
-                        // Careful string replacement to inject current horses state as default
-                        let exportScript = scriptContent.replace(
-                            'const [horses, setHorses] = useState(() => {',
-                            `const [horses, setHorses] = useState(${JSON.stringify(horses)}); /*`
-                        ).replace(
-                            'return FIXED_HORSES.map(h => ({ ...h, myMark: \'--\' }));',
-                            ''
-                        ).replace(
-                            '});',
-                            '*/ );'
-                        );
-                        
-                        // Fix the comment block we just made might be syntax error if not careful
-                        // Better approach for portable: just hardcode the data variable
-                        
+
+                        // Create the HTML string carefully splitting script tags
                         const htmlContent = `<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arima Logic 2025 - Portable</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
-    <script src="https://cdn.tailwindcss.com"><\/script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"><` + `/script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><` + `/script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><` + `/script>
+    <script src="https://cdn.tailwindcss.com"><` + `/script>
     <style>${styleContent}</style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
     <div id="root"></div>
     <script type="text/babel">
-        // Inject current state
-        const DEFAULT_HORSES_STATE = ${JSON.stringify(horses)};
-        const DEFAULT_CONDITION = "${trackCondition}";
+        // Inject current state as initial
+        const CURRENT_HORSES_STATE = ${JSON.stringify(horses)};
+        const CURRENT_CONDITION = "${trackCondition}";
         
-        ${scriptContent.replace(
-            'const [horses, setHorses] = useState(DEFAULT_HORSES_STATE);', 
-            'const [horses, setHorses] = useState(DEFAULT_HORSES_STATE);'
-        ).replace(
-            "const [trackCondition, setTrackCondition] = useState('good');",
-            "const [trackCondition, setTrackCondition] = useState(DEFAULT_CONDITION);"
-        )}
-    <\/script>
+        // --- Injected Code ---
+        ${scriptContent}
+        
+        // Override initial state in the component logic below (this part is tricky with static text replacement)
+        // Instead, we will rely on the fact that this script runs fresh.
+        // We need to modify the initial useState hooks in the code string above? No, that's complex.
+        // Better: We define a global config object that the component reads from if available.
+        window.INITIAL_APP_STATE = {
+            horses: CURRENT_HORSES_STATE,
+            condition: CURRENT_CONDITION
+        };
+    <` + `/script>
 </body>
 </html>`;
                         
@@ -787,6 +741,7 @@
                         a.download = 'ArimaLogic_2025_App.html';
                         a.click();
                         URL.revokeObjectURL(url);
+                        alert("アプリ本体をダウンロードしました。");
                     } catch (err) {
                         console.error("Download failed:", err);
                         alert("ダウンロードに失敗しました。");
@@ -810,6 +765,14 @@
                 const m = MARKS.find(m => m.label === label);
                 return m ? m.color : MARKS[0].color;
             };
+
+            // Use window.INITIAL_APP_STATE if available (for portable version)
+            useEffect(() => {
+                if (window.INITIAL_APP_STATE) {
+                    setHorses(window.INITIAL_APP_STATE.horses);
+                    setTrackCondition(window.INITIAL_APP_STATE.condition);
+                }
+            }, []);
 
             return (
                 <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-12">
@@ -885,17 +848,20 @@
                                                 <div className="text-xs opacity-80 border-l-2 border-slate-600 pl-2 mt-1 truncate">{horse.desc}</div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                             <select 
-                                                 value={horse.myMark} 
-                                                 onChange={(e) => handleMarkChange(horse.id, e.target.value)}
-                                                 className={`mark-select w-10 h-10 rounded border ${markStyle} text-sm font-bold focus:outline-none cursor-pointer text-slate-900`}
-                                                 style={{color: horse.myMark === '--' ? '#94a3b8' : 'inherit'}}
-                                             >
-                                                {MARKS.map(m => (
-                                                    <option key={m.label} value={m.label}>{m.label}</option>
-                                                ))}
-                                             </select>
+                                        <div className="flex items-center gap-2 relative" onClick={(e) => e.stopPropagation()}>
+                                             {/* Mark Button / Select */}
+                                             <div className={`w-10 h-10 rounded border ${markStyle} text-sm font-bold flex items-center justify-center relative overflow-hidden`}>
+                                                <span className="z-0 pointer-events-none">{horse.myMark}</span>
+                                                <select 
+                                                    value={horse.myMark} 
+                                                    onChange={(e) => handleMarkChange(horse.id, e.target.value)}
+                                                    className="mark-select-overlay opacity-0 absolute top-0 left-0 w-full h-full cursor-pointer z-10"
+                                                >
+                                                    {MARKS.map(m => (
+                                                        <option key={m.label} value={m.label}>{m.label}</option>
+                                                    ))}
+                                                </select>
+                                             </div>
                                             <div className={`flex-shrink-0 w-8 h-8 rounded flex items-center justify-center font-bold text-sm border shadow-sm ${gateColor}`}>
                                                 {horse.gate}
                                             </div>
@@ -926,6 +892,15 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<ArimaAnalyzer />);
     
+        
+        // Override initial state in the component logic below (this part is tricky with static text replacement)
+        // Instead, we will rely on the fact that this script runs fresh.
+        // We need to modify the initial useState hooks in the code string above? No, that's complex.
+        // Better: We define a global config object that the component reads from if available.
+        window.INITIAL_APP_STATE = {
+            horses: CURRENT_HORSES_STATE,
+            condition: CURRENT_CONDITION
+        };
     </script>
 </body>
 </html>
