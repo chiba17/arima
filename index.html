@@ -1,206 +1,931 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Arima Logic 2025 - Portable</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { background: #0f172a; color: white; font-family: sans-serif; }
-    .mark-select { -webkit-appearance: none; -moz-appearance: none; appearance: none; text-align: center; text-align-last: center; }
-  </style>
-</head>
-<body class="p-4 max-w-4xl mx-auto">
-  <header class="mb-4 border-b border-slate-700 pb-2">
-    <h1 class="text-xl font-bold text-white">Arima Logic 2025 <span class="text-slate-500 text-sm">Portable</span></h1>
-  </header>
-
-  <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 mb-4">
-    <label class="text-xs font-bold text-slate-400 uppercase block mb-1">馬場状態</label>
-    <div class="flex gap-2" id="condition-buttons">
-       <button onclick="setCondition('good')" id="btn-good" class="flex-1 px-2 py-2 rounded text-sm font-bold bg-emerald-600 text-white">良 (Speed)</button>
-       <button onclick="setCondition('yielding')" id="btn-yielding" class="flex-1 px-2 py-2 rounded text-sm font-bold bg-slate-800 text-slate-400 border border-slate-600">稍重</button>
-       <button onclick="setCondition('soft')" id="btn-soft" class="flex-1 px-2 py-2 rounded text-sm font-bold bg-slate-800 text-slate-400 border border-slate-600">重〜不良</button>
-    </div>
-  </div>
-
-  <div id="horse-list" class="space-y-3"></div>
-
-  <script>
-    const horses = [{"id":"excite","gate":1,"name":"エキサイトバイオ","jockey":"荻野極","age":3,"sex":"M","ability":84,"suitability":88,"power":82,"style":9,"achievements":"25年菊花賞(G1)3着, 3歳1勝クラス","desc":"【大穴注意】1枠1番。能力値は劣るが、最短距離を回れる物理的メリットは計り知れない。展開が崩れれば3着の目はゼロではない。","myMark":"--"},{"id":"shin","gate":2,"name":"シンエンペラー","jockey":"坂井瑠星","age":4,"sex":"M","ability":93,"suitability":94,"power":95,"style":5,"achievements":"25年ネオムターフC(G2), ホープフルS(G1)2着","desc":"【推奨】絶好の黒枠。欧州血統のパワーと先行力は、今の中山のタフな馬場に完全に合致する。内々を立ち回れば勝ち負け必至。","myMark":"--"},{"id":"justin","gate":3,"name":"ジャスティンパレス","jockey":"団野大成","age":6,"sex":"M","ability":94,"suitability":89,"power":87,"style":6,"achievements":"23年天皇賞春(G1), 神戸新聞杯(G2)","desc":"【有力】3番枠は彼にとってベスト。ズブさを補う位置取りが可能。団野騎手の手腕でロスのない競馬ができれば圏内。","myMark":"--"},{"id":"museum","gate":4,"name":"ミュージアムマイル","jockey":"Ｃ.デムーロ","age":3,"sex":"M","ability":96,"suitability":99,"power":92,"style":3,"achievements":"25年皐月賞(G1), 天皇賞秋(G1)2着","desc":"【本命級】皐月賞と同じ2枠4番。先行して抜け出す王道競馬が可能。3歳56kgの恩恵と、絶対的なコース適性で古馬を圧倒する。","myMark":"--"},{"id":"regaleira","gate":5,"name":"レガレイラ","jockey":"Ｃ.ルメール","age":4,"sex":"F","ability":98,"suitability":86,"power":83,"style":9,"achievements":"24年有馬記念(G1), ホープフルS(G1)","desc":"【高評価】能力はNo.1。後方脚質だが、ルメール騎手が5番枠からどう捌くか。中団につけられれば連覇は堅い。","myMark":"--"},{"id":"meisho","gate":6,"name":"メイショウタバル","jockey":"武豊","age":4,"sex":"M","ability":89,"suitability":85,"power":89,"style":0,"achievements":"25年宝塚記念(G1), 毎日杯(G3)","desc":"【展開の鍵】レジェンド武豊の手綱捌きでハナへ。マイペースなら残り目もあるが、マークは厳しくなる。","myMark":"--"},{"id":"sunrise_z","gate":7,"name":"サンライズジパング","jockey":"鮫島克駿","age":4,"sex":"M","ability":86,"suitability":86,"power":94,"style":6,"achievements":"みやこS(G3), 若駒S(L)","desc":"【重巧者】パワー型。馬場が渋れば評価急上昇。良馬場だとスピード負けする懸念あり。消耗戦なら浮上。","myMark":"--"},{"id":"chevalier","gate":8,"name":"シュヴァリエローズ","jockey":"北村友一","age":7,"sex":"M","ability":80,"suitability":81,"power":79,"style":4,"achievements":"京都記念(G2)3着","desc":"ベテランの味があるが、G1のここでは物理的能力値で見劣りする。展開の助けがあっても掲示板までか。","myMark":"--"},{"id":"danon","gate":9,"name":"ダノンデサイル","jockey":"戸崎圭太","age":4,"sex":"M","ability":95,"suitability":96,"power":88,"style":4,"achievements":"24年日本ダービー(G1), 京成杯(G3)","desc":"【対抗】ダービー馬。5枠9番は前に壁を作りやすく、かつ動きたい時に動ける好枠。操縦性の高さで中山を攻略する。","myMark":"--"},{"id":"cosmo","gate":10,"name":"コスモキュランダ","jockey":"横山武史","age":4,"sex":"M","ability":89,"suitability":97,"power":87,"style":8,"achievements":"弥生賞(G2), 皐月賞(G1)2着","desc":"【特注】中山マイスター。外目の枠だが、向こう正面から捲る彼にとっては動きやすい。横山武騎手の積極策に期待。","myMark":"--"},{"id":"mystery","gate":11,"name":"ミステリーウェイ","jockey":"松本大輝","age":7,"sex":"G","ability":78,"suitability":75,"power":85,"style":1,"achievements":"3勝クラス","desc":"外枠の逃げ馬は厳しい。ハナを主張すればスタミナを浪費し、控えれば持ち味が出ない。苦戦必至。","myMark":"--"},{"id":"meiner","gate":12,"name":"マイネルエンペラー","jockey":"丹内祐次","age":5,"sex":"M","ability":81,"suitability":84,"power":90,"style":7,"achievements":"3勝クラス","desc":"ゴールドシップ産駒。雨なら一考。良馬場スピード勝負では分が悪い。展開待ちの他力本願にならざるを得ない。","myMark":"--"},{"id":"admire","gate":13,"name":"アドマイヤテラ","jockey":"川田将雅","age":4,"sex":"M","ability":88,"suitability":88,"power":91,"style":5,"achievements":"茶臼山高原特別(2勝), 阿寒湖特別(2勝)","desc":"【危険】7枠に入ったことで距離ロスのリスク増大。川田騎手でも外々を回らされるとG1級相手には厳しい。","myMark":"--"},{"id":"arata","gate":14,"name":"アラタ","jockey":"大野拓弥","age":8,"sex":"M","ability":77,"suitability":85,"power":82,"style":5,"achievements":"金杯(G3)3着","desc":"8歳馬に7枠14番は酷。中山実績はあるが、物理的なピークアウトを迎えており、ここでの好走確率は統計的に低い。","myMark":"--"},{"id":"elton","gate":15,"name":"エルトンバローズ","jockey":"西村淳也","age":5,"sex":"M","ability":89,"suitability":80,"power":78,"style":3,"achievements":"毎日王冠(G2)","desc":"【消し】8枠15番は「死の枠」。距離適性の不安に加え、物理的な距離ロスが重なる二重苦。能力だけで覆すのは困難。","myMark":"--"},{"id":"tastiera","gate":16,"name":"タスティエーラ","jockey":"松山弘平","age":5,"sex":"M","ability":90,"suitability":92,"power":88,"style":4,"achievements":"23年日本ダービー(G1)","desc":"【大減点】大外16番。中山巧者だが、この枠は絶望的。最初のコーナーまでに好位を取ろうとすれば脚を使い、控えれば届かない。","myMark":"--"}];
-    let currentCondition = 'good';
-    
-    // Simple clone to avoid reference issues
-    let currentHorses = JSON.parse(JSON.stringify(horses));
-
-    const MARKS = [
-        { label: '--', color: 'bg-slate-700 text-slate-400 border-slate-600' },
-        { label: '◎', color: 'bg-white text-red-600 border-red-600 font-extrabold' },
-        { label: '◯', color: 'bg-white text-blue-600 border-blue-600 font-extrabold' },
-        { label: '▲', color: 'bg-white text-black border-black font-extrabold' },
-        { label: '△', color: 'bg-white text-black border-black font-normal' },
-        { label: '☆', color: 'bg-yellow-400 text-black border-yellow-500 font-extrabold' },
-        { label: '消', color: 'bg-gray-400 text-gray-700 border-gray-500' },
-    ];
-
-    function getStyleLabel(style) {
-        if (style <= 1) return { label: '逃げ', color: 'bg-orange-500' };
-        if (style <= 4) return { label: '先行', color: 'bg-emerald-500' };
-        if (style <= 7) return { label: '差し', color: 'bg-blue-500' };
-        return { label: '追込', color: 'bg-purple-500' };
-    }
-
-    function getWeight(age, sex) {
-        let weight = 58;
-        if (age === 3) weight = 56;
-        if (sex === 'F') weight -= 2;
-        return weight + 'kg';
-    }
-
-    function getGateColor(gate) {
-        if (gate === 1 || gate === 2) return 'bg-white text-gray-900 border-gray-300';
-        if (gate === 3 || gate === 4) return 'bg-gray-900 text-white border-gray-600';
-        if (gate === 5 || gate === 6) return 'bg-red-600 text-white border-red-500';
-        if (gate === 7 || gate === 8) return 'bg-blue-600 text-white border-blue-500';
-        if (gate === 9 || gate === 10) return 'bg-yellow-400 text-gray-900 border-yellow-300';
-        if (gate === 11 || gate === 12) return 'bg-green-600 text-white border-green-500';
-        if (gate === 13 || gate === 14) return 'bg-orange-500 text-white border-orange-400';
-        if (gate === 15 || gate === 16) return 'bg-pink-400 text-white border-pink-300';
-        return 'bg-slate-700 text-white';
-    }
-
-    function getMarkStyle(label) {
-        const m = MARKS.find(m => m.label === label);
-        return m ? m.color : MARKS[0].color;
-    }
-
-    function calculate(horse, cond) {
-        const gate = horse.gate;
-        let gateScore = 0;
-        if (gate <= 6) gateScore = 15;
-        else if (gate <= 10) gateScore = 5;
-        else if (gate <= 14) gateScore = -10;
-        else gateScore = -20;
-
-        let baseCapability = 0;
-        let trackComment = "";
-
-        if (cond === 'good') {
-            baseCapability = (horse.ability * 0.7) + (horse.suitability * 0.3);
-            if (horse.suitability >= 95) trackComment = "絶好";
-            else if (horse.power < 80) trackComment = "歓迎";
-            else trackComment = "適合";
-        } else if (cond === 'yielding') {
-            baseCapability = (horse.ability * 0.4) + (horse.power * 0.3) + (horse.suitability * 0.3);
-            if (horse.power >= 85) trackComment = "好機";
-            else if (horse.power < 80) trackComment = "警戒";
-            else trackComment = "対応";
-        } else {
-            baseCapability = (horse.power * 0.6) + (horse.suitability * 0.4);
-            if (horse.power >= 90) trackComment = "鬼";
-            else if (horse.power < 82) trackComment = "苦戦";
-            else trackComment = "可";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arima Logic 2025 - Portable</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        let riskPenalty = 0;
-        if (gate >= 13 && horse.style <= 3) riskPenalty -= 3;
-        if (gate <= 4 && horse.style >= 8) riskPenalty -= 2;
-        if (horse.age === 3) riskPenalty += 2;
-        if (horse.id === 'meisho' && gate <= 6) riskPenalty += 2;
-
-        const totalScore = baseCapability + gateScore + riskPenalty;
-        let grade = 'C';
-        if (totalScore >= 108) grade = 'S';
-        else if (totalScore >= 100) grade = 'A';
-        else if (totalScore >= 92) grade = 'B';
-        else if (totalScore >= 84) grade = 'C';
-        else grade = 'D';
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
         
-        let suitabilityScore = 0;
-        if (cond === 'good') suitabilityScore = horse.ability;
-        else if (cond === 'yielding') suitabilityScore = (horse.ability + horse.power) / 2;
-        else suitabilityScore = horse.power;
+        /* Select Reset for Mark */
+        .mark-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            text-align: center;
+            text-align-last: center;
+        }
         
-        let suitabilityRank = "B";
-        if (suitabilityScore >= 95) suitabilityRank = "S";
-        else if (suitabilityScore >= 90) suitabilityRank = "A";
-        else if (suitabilityScore >= 85) suitabilityRank = "B";
-        else if (suitabilityScore >= 80) suitabilityRank = "C";
-        else suitabilityRank = "D";
-
-        return { grade, score: total, trackComment, suitabilityRank };
-    }
-
-    function setCondition(cond) {
-        currentCondition = cond;
-        ['good','yielding','soft'].forEach(c => {
-            const btn = document.getElementById('btn-'+c);
-            if(c === cond) btn.className = 'flex-1 px-2 py-2 rounded text-sm font-bold bg-emerald-600 text-white transition-all';
-            else btn.className = 'flex-1 px-2 py-2 rounded text-sm font-bold bg-slate-800 text-slate-400 border border-slate-600 transition-all';
-        });
-        render();
-    }
-
-    function updateMark(id, val) {
-        const h = currentHorses.find(x => x.id === id);
-        if(h) h.myMark = val;
-        render();
-    }
-
-    function render() {
-        const container = document.getElementById('horse-list');
-        container.innerHTML = '';
+        /* Error fallback */
+        #error-display { display: none; padding: 20px; color: #ef4444; background: #1e293b; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans">
+    <div id="root"></div>
+    <script type="text/babel">
+        // Inject current state
+        const DEFAULT_HORSES_STATE = [{"id":"excite","gate":1,"name":"エキサイトバイオ","jockey":"荻野極","age":3,"sex":"M","ability":84,"suitability":88,"power":82,"style":9,"achievements":"25年菊花賞(G1)3着, 3歳1勝クラス","desc":"【大穴注意】1枠1番。能力値は劣るが、最短距離を回れる物理的メリットは計り知れない。展開が崩れれば3着の目はゼロではない。","myMark":"--"},{"id":"shin","gate":2,"name":"シンエンペラー","jockey":"坂井瑠星","age":4,"sex":"M","ability":93,"suitability":94,"power":95,"style":5,"achievements":"25年ネオムターフC(G2), ホープフルS(G1)2着","desc":"【推奨】絶好の黒枠。欧州血統のパワーと先行力は、今の中山のタフな馬場に完全に合致する。内々を立ち回れば勝ち負け必至。","myMark":"--"},{"id":"justin","gate":3,"name":"ジャスティンパレス","jockey":"団野大成","age":6,"sex":"M","ability":94,"suitability":89,"power":87,"style":6,"achievements":"23年天皇賞春(G1), 神戸新聞杯(G2)","desc":"【有力】3番枠は彼にとってベスト。ズブさを補う位置取りが可能。団野騎手の手腕でロスのない競馬ができれば圏内。","myMark":"--"},{"id":"museum","gate":4,"name":"ミュージアムマイル","jockey":"Ｃ.デムーロ","age":3,"sex":"M","ability":96,"suitability":99,"power":92,"style":3,"achievements":"25年皐月賞(G1), 天皇賞秋(G1)2着","desc":"【本命級】皐月賞と同じ2枠4番。先行して抜け出す王道競馬が可能。3歳56kgの恩恵と、絶対的なコース適性で古馬を圧倒する。","myMark":"--"},{"id":"regaleira","gate":5,"name":"レガレイラ","jockey":"Ｃ.ルメール","age":4,"sex":"F","ability":98,"suitability":86,"power":83,"style":9,"achievements":"24年有馬記念(G1), ホープフルS(G1)","desc":"【高評価】能力はNo.1。後方脚質だが、ルメール騎手が5番枠からどう捌くか。中団につけられれば連覇は堅い。","myMark":"--"},{"id":"meisho","gate":6,"name":"メイショウタバル","jockey":"武豊","age":4,"sex":"M","ability":89,"suitability":85,"power":89,"style":0,"achievements":"25年宝塚記念(G1), 毎日杯(G3)","desc":"【展開の鍵】レジェンド武豊の手綱捌きでハナへ。マイペースなら残り目もあるが、マークは厳しくなる。","myMark":"--"},{"id":"sunrise_z","gate":7,"name":"サンライズジパング","jockey":"鮫島克駿","age":4,"sex":"M","ability":86,"suitability":86,"power":94,"style":6,"achievements":"みやこS(G3), 若駒S(L)","desc":"【重巧者】パワー型。馬場が渋れば評価急上昇。良馬場だとスピード負けする懸念あり。消耗戦なら浮上。","myMark":"--"},{"id":"chevalier","gate":8,"name":"シュヴァリエローズ","jockey":"北村友一","age":7,"sex":"M","ability":80,"suitability":81,"power":79,"style":4,"achievements":"京都記念(G2)3着","desc":"ベテランの味があるが、G1のここでは物理的能力値で見劣りする。展開の助けがあっても掲示板までか。","myMark":"--"},{"id":"danon","gate":9,"name":"ダノンデサイル","jockey":"戸崎圭太","age":4,"sex":"M","ability":95,"suitability":96,"power":88,"style":4,"achievements":"24年日本ダービー(G1), 京成杯(G3)","desc":"【対抗】ダービー馬。5枠9番は前に壁を作りやすく、かつ動きたい時に動ける好枠。操縦性の高さで中山を攻略する。","myMark":"--"},{"id":"cosmo","gate":10,"name":"コスモキュランダ","jockey":"横山武史","age":4,"sex":"M","ability":89,"suitability":97,"power":87,"style":8,"achievements":"弥生賞(G2), 皐月賞(G1)2着","desc":"【特注】中山マイスター。外目の枠だが、向こう正面から捲る彼にとっては動きやすい。横山武騎手の積極策に期待。","myMark":"--"},{"id":"mystery","gate":11,"name":"ミステリーウェイ","jockey":"松本大輝","age":7,"sex":"G","ability":78,"suitability":75,"power":85,"style":1,"achievements":"3勝クラス","desc":"外枠の逃げ馬は厳しい。ハナを主張すればスタミナを浪費し、控えれば持ち味が出ない。苦戦必至。","myMark":"--"},{"id":"meiner","gate":12,"name":"マイネルエンペラー","jockey":"丹内祐次","age":5,"sex":"M","ability":81,"suitability":84,"power":90,"style":7,"achievements":"3勝クラス","desc":"ゴールドシップ産駒。雨なら一考。良馬場スピード勝負では分が悪い。展開待ちの他力本願にならざるを得ない。","myMark":"--"},{"id":"admire","gate":13,"name":"アドマイヤテラ","jockey":"川田将雅","age":4,"sex":"M","ability":88,"suitability":88,"power":91,"style":5,"achievements":"茶臼山高原特別(2勝), 阿寒湖特別(2勝)","desc":"【危険】7枠に入ったことで距離ロスのリスク増大。川田騎手でも外々を回らされるとG1級相手には厳しい。","myMark":"--"},{"id":"arata","gate":14,"name":"アラタ","jockey":"大野拓弥","age":8,"sex":"M","ability":77,"suitability":85,"power":82,"style":5,"achievements":"金杯(G3)3着","desc":"8歳馬に7枠14番は酷。中山実績はあるが、物理的なピークアウトを迎えており、ここでの好走確率は統計的に低い。","myMark":"--"},{"id":"elton","gate":15,"name":"エルトンバローズ","jockey":"西村淳也","age":5,"sex":"M","ability":89,"suitability":80,"power":78,"style":3,"achievements":"毎日王冠(G2)","desc":"【消し】8枠15番は「死の枠」。距離適性の不安に加え、物理的な距離ロスが重なる二重苦。能力だけで覆すのは困難。","myMark":"--"},{"id":"tastiera","gate":16,"name":"タスティエーラ","jockey":"松山弘平","age":5,"sex":"M","ability":90,"suitability":92,"power":88,"style":4,"achievements":"23年日本ダービー(G1)","desc":"【大減点】大外16番。中山巧者だが、この枠は絶望的。最初のコーナーまでに好位を取ろうとすれば脚を使い、控えれば届かない。","myMark":"--"}];
+        const DEFAULT_CONDITION = "good";
         
-        const sorted = [...currentHorses].sort((a,b) => {
-            const resA = calculate(a, currentCondition);
-            const resB = calculate(b, currentCondition);
-            return resB.score - resA.score;
-        });
+        
+        const { useState, useMemo, useEffect } = React;
 
-        const colors = { S: 'bg-yellow-500 text-black', A: 'bg-red-500 text-white', B: 'bg-blue-500 text-white', C: 'bg-gray-500 text-white', D: 'bg-slate-700 text-gray-300' };
+        // --- Safe Script Tags for Portable Generation ---
+        // 文字列としてスクリプトタグを書く際に、ブラウザが誤認しないように分割する
+        const SCRIPT_OPEN = '<' + 'script';
+        const SCRIPT_CLOSE = '<' + '/' + 'script>';
 
-        sorted.forEach(h => {
-            const res = calculate(h, currentCondition);
-            const badgeClass = colors[res.grade];
-            const style = getStyleLabel(h.style);
-            const gateColor = getGateColor(h.gate);
-            const markStyle = getMarkStyle(h.myMark);
+        // Icons
+        const IconWrapper = ({ children, size = 20, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
+        const Activity = (p) => <IconWrapper {...p}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></IconWrapper>;
+        const BarChart2 = (p) => <IconWrapper {...p}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></IconWrapper>;
+        const BookOpen = (p) => <IconWrapper {...p}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconWrapper>;
+        const ChevronDown = (p) => <IconWrapper {...p}><polyline points="6 9 12 15 18 9"/></IconWrapper>;
+        const ChevronUp = (p) => <IconWrapper {...p}><polyline points="18 15 12 9 6 15"/></IconWrapper>;
+        const Info = (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></IconWrapper>;
+        const MapPin = (p) => <IconWrapper {...p}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></IconWrapper>;
+        const Wind = (p) => <IconWrapper {...p}><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></IconWrapper>;
+        const X = (p) => <IconWrapper {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></IconWrapper>;
+        const List = (p) => <IconWrapper {...p}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></IconWrapper>;
+        const Settings = (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></IconWrapper>;
+        const Eye = (p) => <IconWrapper {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></IconWrapper>;
+        const EyeOff = (p) => <IconWrapper {...p}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></IconWrapper>;
+        const ArrowDownUp = (p) => <IconWrapper {...p}><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></IconWrapper>; 
+        const RefreshCw = (p) => <IconWrapper {...p}><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></IconWrapper>;
+        const AlertTriangle = (p) => <IconWrapper {...p}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconWrapper>;
+        const Target = (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></IconWrapper>;
+        const TrendingUp = (p) => <IconWrapper {...p}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></IconWrapper>;
+        const Compass = (p) => <IconWrapper {...p}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></IconWrapper>;
+        const Layers = (p) => <IconWrapper {...p}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></IconWrapper>;
+        const Download = (p) => <IconWrapper {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></IconWrapper>;
+        const Trophy = (p) => <IconWrapper {...p}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></IconWrapper>;
+        const FileText = (p) => <IconWrapper {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></IconWrapper>;
+        const Trash2 = (p) => <IconWrapper {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></IconWrapper>;
+        const Plus = (p) => <IconWrapper {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></IconWrapper>;
+        const Share2 = (p) => <IconWrapper {...p}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></IconWrapper>;
+
+        // ------------------------------------------------------------------
+        // Data & Logic (Finalized Gate)
+        // ------------------------------------------------------------------
+
+        // パラメータ定義:
+        // ability: 絶対能力値（スピード・瞬発力ベース）
+        // suitability: コース適性（器用さ・立ち回り・中山実績）
+        // power: パワー・スタミナ（重馬場適性・消耗戦耐性）
+        const FIXED_HORSES = [
+            { id: 'excite', gate: 1, name: 'エキサイトバイオ', jockey: '荻野極', age: 3, sex: 'M', ability: 84, suitability: 88, power: 82, style: 9, achievements: '25年菊花賞(G1)3着, 3歳1勝クラス', desc: '【大穴注意】1枠1番。能力値は劣るが、最短距離を回れる物理的メリットは計り知れない。展開が崩れれば3着の目はゼロではない。' },
+            { id: 'shin', gate: 2, name: 'シンエンペラー', jockey: '坂井瑠星', age: 4, sex: 'M', ability: 93, suitability: 94, power: 95, style: 5, achievements: '25年ネオムターフC(G2), ホープフルS(G1)2着', desc: '【推奨】絶好の黒枠。欧州血統のパワーと先行力は、今の中山のタフな馬場に完全に合致する。内々を立ち回れば勝ち負け必至。' },
+            { id: 'justin', gate: 3, name: 'ジャスティンパレス', jockey: '団野大成', age: 6, sex: 'M', ability: 94, suitability: 89, power: 87, style: 6, achievements: '23年天皇賞春(G1), 神戸新聞杯(G2)', desc: '【有力】3番枠は彼にとってベスト。ズブさを補う位置取りが可能。団野騎手の手腕でロスのない競馬ができれば圏内。' },
+            { id: 'museum', gate: 4, name: 'ミュージアムマイル', jockey: 'Ｃ.デムーロ', age: 3, sex: 'M', ability: 96, suitability: 99, power: 92, style: 3, achievements: '25年皐月賞(G1), 天皇賞秋(G1)2着', desc: '【本命級】皐月賞と同じ2枠4番。先行して抜け出す王道競馬が可能。3歳56kgの恩恵と、絶対的なコース適性で古馬を圧倒する。' },
+            { id: 'regaleira', gate: 5, name: 'レガレイラ', jockey: 'Ｃ.ルメール', age: 4, sex: 'F', ability: 98, suitability: 86, power: 83, style: 9, achievements: '24年有馬記念(G1), ホープフルS(G1)', desc: '【高評価】能力はNo.1。後方脚質だが、ルメール騎手が5番枠からどう捌くか。中団につけられれば連覇は堅い。' },
+            { id: 'meisho', gate: 6, name: 'メイショウタバル', jockey: '武豊', age: 4, sex: 'M', ability: 89, suitability: 85, power: 89, style: 0, achievements: '25年宝塚記念(G1), 毎日杯(G3)', desc: '【展開の鍵】レジェンド武豊の手綱捌きでハナへ。マイペースなら残り目もあるが、マークは厳しくなる。' },
+            { id: 'sunrise_z', gate: 7, name: 'サンライズジパング', jockey: '鮫島克駿', age: 4, sex: 'M', ability: 86, suitability: 86, power: 94, style: 6, achievements: 'みやこS(G3), 若駒S(L)', desc: '【重巧者】パワー型。馬場が渋れば評価急上昇。良馬場だとスピード負けする懸念あり。消耗戦なら浮上。' },
+            { id: 'chevalier', gate: 8, name: 'シュヴァリエローズ', jockey: '北村友一', age: 7, sex: 'M', ability: 80, suitability: 81, power: 79, style: 4, achievements: '京都記念(G2)3着', desc: 'ベテランの味があるが、G1のここでは物理的能力値で見劣りする。展開の助けがあっても掲示板までか。' },
+            { id: 'danon', gate: 9, name: 'ダノンデサイル', jockey: '戸崎圭太', age: 4, sex: 'M', ability: 95, suitability: 96, power: 88, style: 4, achievements: '24年日本ダービー(G1), 京成杯(G3)', desc: '【対抗】ダービー馬。5枠9番は前に壁を作りやすく、かつ動きたい時に動ける好枠。操縦性の高さで中山を攻略する。' },
+            { id: 'cosmo', gate: 10, name: 'コスモキュランダ', jockey: '横山武史', age: 4, sex: 'M', ability: 89, suitability: 97, power: 87, style: 8, achievements: '弥生賞(G2), 皐月賞(G1)2着', desc: '【特注】中山マイスター。外目の枠だが、向こう正面から捲る彼にとっては動きやすい。横山武騎手の積極策に期待。' },
+            { id: 'mystery', gate: 11, name: 'ミステリーウェイ', jockey: '松本大輝', age: 7, sex: 'G', ability: 78, suitability: 75, power: 85, style: 1, achievements: '3勝クラス', desc: '外枠の逃げ馬は厳しい。ハナを主張すればスタミナを浪費し、控えれば持ち味が出ない。苦戦必至。' },
+            { id: 'meiner', gate: 12, name: 'マイネルエンペラー', jockey: '丹内祐次', age: 5, sex: 'M', ability: 81, suitability: 84, power: 90, style: 7, achievements: '3勝クラス', desc: 'ゴールドシップ産駒。雨なら一考。良馬場スピード勝負では分が悪い。展開待ちの他力本願にならざるを得ない。' },
+            { id: 'admire', gate: 13, name: 'アドマイヤテラ', jockey: '川田将雅', age: 4, sex: 'M', ability: 88, suitability: 88, power: 91, style: 5, achievements: '茶臼山高原特別(2勝), 阿寒湖特別(2勝)', desc: '【危険】7枠に入ったことで距離ロスのリスク増大。川田騎手でも外々を回らされるとG1級相手には厳しい。' },
+            { id: 'arata', gate: 14, name: 'アラタ', jockey: '大野拓弥', age: 8, sex: 'M', ability: 77, suitability: 85, power: 82, style: 5, achievements: '金杯(G3)3着', desc: '8歳馬に7枠14番は酷。中山実績はあるが、物理的なピークアウトを迎えており、ここでの好走確率は統計的に低い。' },
+            { id: 'elton', gate: 15, name: 'エルトンバローズ', jockey: '西村淳也', age: 5, sex: 'M', ability: 89, suitability: 80, power: 78, style: 3, achievements: '毎日王冠(G2)', desc: '【消し】8枠15番は「死の枠」。距離適性の不安に加え、物理的な距離ロスが重なる二重苦。能力だけで覆すのは困難。' },
+            { id: 'tastiera', gate: 16, name: 'タスティエーラ', jockey: '松山弘平', age: 5, sex: 'M', ability: 90, suitability: 92, power: 88, style: 4, achievements: '23年日本ダービー(G1)', desc: '【大減点】大外16番。中山巧者だが、この枠は絶望的。最初のコーナーまでに好位を取ろうとすれば脚を使い、控えれば届かない。' },
+        ];
+
+        // Mark Options
+        const MARKS = [
+            { label: '--', color: 'bg-slate-700 text-slate-400 border-slate-600' },
+            { label: '◎', color: 'bg-white text-red-600 border-red-600 font-extrabold' },
+            { label: '◯', color: 'bg-white text-blue-600 border-blue-600 font-extrabold' },
+            { label: '▲', color: 'bg-white text-black border-black font-extrabold' },
+            { label: '△', color: 'bg-white text-black border-black font-normal' },
+            { label: '☆', color: 'bg-yellow-400 text-black border-yellow-500 font-extrabold' },
+            { label: '消', color: 'bg-gray-400 text-gray-700 border-gray-500' },
+        ];
+
+        // Style Helper
+        const getStyleLabel = (style) => {
+            if (style <= 1) return { label: '逃げ', color: 'bg-orange-500' };
+            if (style <= 4) return { label: '先行', color: 'bg-emerald-500' };
+            if (style <= 7) return { label: '差し', color: 'bg-blue-500' };
+            return { label: '追込', color: 'bg-purple-500' };
+        };
+
+        const getWeight = (age, sex) => {
+            let weight = 58;
+            if (age === 3) weight = 56;
+            if (sex === 'F') weight -= 2;
+            return weight + 'kg';
+        };
+
+        const getGateColor = (gate) => {
+            if (gate === 1 || gate === 2) return 'bg-white text-gray-900 border-gray-300';
+            if (gate === 3 || gate === 4) return 'bg-gray-900 text-white border-gray-600';
+            if (gate === 5 || gate === 6) return 'bg-red-600 text-white border-red-500';
+            if (gate === 7 || gate === 8) return 'bg-blue-600 text-white border-blue-500';
+            if (gate === 9 || gate === 10) return 'bg-yellow-400 text-gray-900 border-yellow-300';
+            if (gate === 11 || gate === 12) return 'bg-green-600 text-white border-green-500';
+            if (gate === 13 || gate === 14) return 'bg-orange-500 text-white border-orange-400';
+            if (gate === 15 || gate === 16) return 'bg-pink-400 text-white border-pink-300';
+            return 'bg-slate-700 text-white';
+        };
+
+        // ------------------------------------------------------------------
+        // Algorithm: Structural Analysis Engine
+        // ------------------------------------------------------------------
+        const calculateAnalysis = (horse, trackCondition) => {
+            const gate = horse.gate;
             
-            const markOptions = MARKS.map(m => `<option value="${m.label}" ${m.label===h.myMark?'selected':''}>${m.label}</option>`).join('');
+            // 枠順係数: 中山2500mの物理的有利不利
+            let gateScore = 0;
+            if (gate <= 6) { gateScore = 15; } 
+            else if (gate <= 10) { gateScore = 5; } 
+            else if (gate <= 14) { gateScore = -10; } 
+            else { gateScore = -20; } // 15,16番は致命的
 
-            const div = document.createElement('div');
-            div.className = 'bg-slate-800 rounded-xl border border-slate-700 p-4 flex flex-col sm:flex-row items-center gap-4';
-            div.innerHTML = `
-                <div class="flex-shrink-0 ${badgeClass} w-16 h-16 rounded-lg flex items-center justify-center text-3xl font-bold shadow-lg">${res.grade}</div>
-                <div class="flex-grow min-w-0 pt-1 sm:pt-0">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded text-white ${style.color}">${style.label}</span>
-                        <h3 class="font-bold text-white text-base leading-none truncate">${h.name}</h3>
-                        <span class="text-xs text-slate-400">(${h.jockey})</span>
-                        <span class="flex-shrink-0 text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${getWeight(h.age, h.sex)}</span>
-                    </div>
-                    <div class="flex flex-col gap-1 text-sm text-slate-400">
-                        <div class="flex items-center gap-3">
-                             <span class="font-mono text-emerald-400 font-bold">Score: ${res.score.toFixed(0)}</span>
-                             <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">適性ランク: ${res.suitabilityRank}</span>
+            // 1. 基礎スコア (Base Capability)
+            let baseCapability = 0;
+            let trackComment = "";
+
+            if (trackCondition === 'good') {
+                // 良馬場: 能力(Ability)重視
+                baseCapability = (horse.ability * 0.7) + (horse.suitability * 0.3);
+                if (horse.suitability >= 95) trackComment = "絶好";
+                else if (horse.power < 80) trackComment = "歓迎";
+                else trackComment = "適合";
+
+            } else if (trackCondition === 'yielding') {
+                // 稍重: バランス
+                baseCapability = (horse.ability * 0.4) + (horse.power * 0.3) + (horse.suitability * 0.3);
+                if (horse.power >= 85) trackComment = "好機";
+                else if (horse.power < 80) trackComment = "警戒";
+                else trackComment = "対応";
+
+            } else { // soft
+                // 重馬場: パワー(Power)重視
+                baseCapability = (horse.power * 0.6) + (horse.suitability * 0.4);
+                if (horse.power >= 90) trackComment = "鬼";
+                else if (horse.power < 82) trackComment = "苦戦";
+                else trackComment = "可";
+            }
+
+            // 2. リスク補正
+            let riskPenalty = 0;
+            // 外枠の先行馬
+            if (gate >= 13 && horse.style <= 3) { riskPenalty -= 3; }
+            // 内枠の追込馬
+            if (gate <= 4 && horse.style >= 8) { riskPenalty -= 2; }
+            // 3歳馬ボーナス
+            if (horse.age === 3) riskPenalty += 2;
+            // 逃げ馬ボーナス(内枠時)
+            if (horse.id === 'meisho' && gate <= 6) riskPenalty += 2;
+
+            // 総合スコア算出
+            const totalScore = baseCapability + gateScore + riskPenalty;
+
+            // 最終グレード判定
+            let grade = 'C';
+            if (totalScore >= 108) grade = 'S'; 
+            else if (totalScore >= 100) grade = 'A';
+            else if (totalScore >= 92) grade = 'B';
+            else if (totalScore >= 84) grade = 'C';
+            else grade = 'D';
+
+            // 適性ランク
+            let suitabilityScore = 0;
+            if (trackCondition === 'good') suitabilityScore = horse.ability;
+            else if (trackCondition === 'yielding') suitabilityScore = (horse.ability + horse.power) / 2;
+            else suitabilityScore = horse.power;
+            
+            let suitabilityRank = "B";
+            if (suitabilityScore >= 95) suitabilityRank = "S";
+            else if (suitabilityScore >= 90) suitabilityRank = "A";
+            else if (suitabilityScore >= 85) suitabilityRank = "B";
+            else if (suitabilityScore >= 80) suitabilityRank = "C";
+            else suitabilityRank = "D";
+
+            return {
+                totalScore,
+                grade,
+                trackComment,
+                suitabilityRank, 
+                params: {
+                    ability: horse.ability,
+                    suitability: horse.suitability,
+                    physics: Math.max(0, Math.min(100, 50 + gateScore * 3 + (trackCondition !== 'good' ? horse.power/2 : 0))),
+                }
+            };
+        };
+
+        const GradeBadge = ({ grade, size = "normal" }) => {
+            const colors = {
+                S: 'bg-yellow-500 text-black border-yellow-300',
+                A: 'bg-red-500 text-white border-red-300',
+                B: 'bg-blue-500 text-white border-blue-300',
+                C: 'bg-gray-500 text-white border-gray-400',
+                D: 'bg-slate-700 text-gray-300 border-slate-600',
+            };
+            const sizeClass = size === "small" ? "w-12 h-12 text-2xl border-4" : "w-16 h-16 text-3xl border-4";
+            const finalClass = colors[grade];
+            return <div className={`flex items-center justify-center rounded-lg font-bold shadow-lg ${finalClass} ${sizeClass}`}>{grade}</div>;
+        };
+
+        // ------------------------------------------------------------------
+        // Modals
+        // ------------------------------------------------------------------
+
+        const RaceGuideModal = ({ onClose }) => {
+            const [imageError, setImageError] = useState(false);
+            useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = 'unset'; }; }, []);
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-slate-800 w-full max-w-4xl rounded-xl border border-slate-700 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+                        <div className="bg-slate-900 p-3 border-b border-slate-700 flex justify-between items-center sticky top-0 z-10">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2"><BookOpen size={20} className="text-purple-400" /> レース構造解析</h2>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white"><X size={24} /></button>
                         </div>
-                        <div class="text-xs opacity-80 border-l-2 border-slate-600 pl-2 mt-1 truncate">${h.desc}</div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                     <select onchange="updateMark('${h.id}', this.value)" class="mark-select w-10 h-10 rounded border ${markStyle} text-sm font-bold focus:outline-none cursor-pointer text-slate-900" style="color: ${h.myMark === '--' ? '#94a3b8' : 'inherit'}">
-                        ${markOptions}
-                     </select>
-                     <div class="${gateColor} w-8 h-8 rounded flex items-center justify-center font-bold text-sm border shadow-sm">
-                        ${h.gate}
-                    </div>
-                </div>
-            `;
-            container.appendChild(div);
-        });
-    }
+                        <div className="overflow-y-auto">
+                            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900 p-6 border-b border-slate-700">
+                                <span className="text-purple-400 font-bold text-sm tracking-wider uppercase mb-1 block">Introduction</span>
+                                <h3 className="text-xl font-bold text-white mb-2">有馬記念の「勝敗」を決める物理法則</h3>
+                                <p className="text-slate-300 text-sm leading-relaxed max-w-3xl">
+                                    多くのファンは「どの馬が一番速いか」を議論しますが、研究者の視点では<strong>「どの馬が最も効率的にエネルギーを使えるか（物理的構造）」</strong>が重要です。中山2500mという特殊な系（System）において支配的な3つの変数を解説します。
+                                </p>
+                            </div>
+                            <div className="p-4 space-y-6">
+                                
+                                <div className="bg-slate-900 rounded-lg p-4 border border-slate-700 flex flex-col items-center">
+                                    <h4 className="text-sm font-bold text-white mb-4 w-full border-l-4 border-purple-500 pl-3">コース構造図解 (Course Anatomy)</h4>
+                                    
+                                    <div className="w-full relative flex justify-center mb-4">
+                                        {!imageError ? (
+                                            <div className="flex flex-col items-center w-full">
+                                                <img 
+                                                    src="06_t2500.jpg" 
+                                                    alt="中山芝2500mコース図" 
+                                                    className="w-full h-auto max-h-[300px] object-contain rounded border border-slate-600"
+                                                    onError={() => setImageError(true)}
+                                                />
+                                                <p className="text-[10px] text-slate-500 mt-1">※画像が表示されない場合は、ダウンロードしたHTMLと同じ場所に「06_t2500.jpg」を保存してください。</p>
+                                            </div>
+                                        ) : (
+                                            <svg width="100%" height="280" viewBox="0 0 400 320">
+                                                <defs>
+                                                    <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 L0,0" fill="#34d399" /></marker>
+                                                    <linearGradient id="slopeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                        <stop offset="0%" stopColor="#3b82f6" /><stop offset="70%" stopColor="#3b82f6" /><stop offset="85%" stopColor="#fbbf24" /><stop offset="100%" stopColor="#ef4444" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <path d="M250,80 Q350,80 350,150" fill="none" stroke="#475569" strokeWidth="2" strokeDasharray="4,4" />
+                                                <path d="M370,50 Q360,70 330,85" fill="none" stroke="#475569" strokeWidth="1" strokeDasharray="2,2" />
+                                                <rect x="40" y="80" width="280" height="160" rx="80" ry="80" fill="none" stroke="#1e293b" strokeWidth="12" />
+                                                <rect x="40" y="80" width="280" height="160" rx="80" ry="80" fill="none" stroke="#34d399" strokeWidth="4" />
+                                                <circle cx="370" cy="50" r="5" fill="#ef4444" stroke="white" strokeWidth="2" />
+                                                <text x="360" y="40" fill="#ef4444" fontSize="12" fontWeight="bold" textAnchor="end">START</text>
+                                                <text x="360" y="52" fill="#94a3b8" fontSize="10" textAnchor="end">外回り3角手前</text>
+                                                <line x1="370" y1="50" x2="310" y2="90" stroke="#ef4444" strokeWidth="2" strokeDasharray="3,3" markerEnd="url(#arrow)" />
+                                                <text x="345" y="65" fill="#ef4444" fontSize="11" fontWeight="bold" transform="rotate(33 345,65)">192m</text>
+                                                <line x1="180" y1="230" x2="180" y2="250" stroke="#fbbf24" strokeWidth="5" />
+                                                <text x="165" y="265" fill="#fbbf24" fontSize="12" fontWeight="bold">GOAL</text>
+                                                <path d="M180,80 L190,80" stroke="none" markerEnd="url(#arrow)" /> 
+                                                <path d="M180,240 L170,240" stroke="none" markerEnd="url(#arrow)" /> 
+                                                <path d="M40,160 L40,150" stroke="none" markerEnd="url(#arrow)" transform="rotate(0 40,160)" /> 
+                                                <rect x="200" y="245" width="80" height="6" fill="url(#slopeGradient)" opacity="0.8" />
+                                                <text x="210" y="260" fill="#fbbf24" fontSize="10" fontWeight="bold">↑ 急坂 (200m-70m)</text>
+                                                <text x="150" y="70" fill="#94a3b8" fontSize="10">向こう正面</text>
+                                                <text x="20" y="160" fill="#94a3b8" fontSize="10" textAnchor="middle">1-2角</text>
+                                                <text x="340" y="160" fill="#94a3b8" fontSize="10" textAnchor="middle">3-4角 (内)</text>
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <div className="text-sm text-slate-300 bg-slate-800 p-3 rounded w-full border border-slate-600 mb-6 leading-relaxed">
+                                        <strong>コース概要:</strong><br/>
+                                        中山芝2500mは、外回りコースの3コーナー手前からスタートし、最初のコーナーまでわずか192mしかないため、外枠の馬は距離ロスを強いられやすい構造になっています。その後、内回りコースに入り、コーナーを合計6回回る小回りなレイアウトです。ゴール前には高低差2.2mの急坂が待ち受けており、これを2度登るタフな設定が、スピードだけでなく、立ち回りの器用さと底知れぬスタミナを要求します。
+                                    </div>
+                                </div>
 
-    render();
-  </script>
+                                <section className="space-y-3">
+                                    <h4 className="flex items-center gap-2 text-emerald-400 font-bold text-sm border-b border-slate-700 pb-2"><Compass size={16} /> 変数A：枠順の幾何学</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><h5 className="font-bold text-white mb-1 text-sm">「魔の192m」と遠心力</h5><p className="text-slate-300 text-sm leading-relaxed">スタートから最初のカーブまで192mしかありません。外枠（特に13番以降）の馬は、幾何学的に鋭角なラインでコーナーに侵入せざるを得ません。内に入れるには急加速して脚を使うか、外を回らされて遠心力でスタミナを削られるかの二択を迫られます。</p></div>
+                                        <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><h5 className="font-bold text-white mb-1 text-sm">推奨される戦略</h5><ul className="text-slate-300 text-sm space-y-1 list-disc list-inside"><li><span className="text-emerald-400">内枠 (1-6)</span>: 最短距離を走れるため、能力が多少劣っても好走可能。</li><li><span className="text-red-400">外枠 (13-16)</span>: 能力Sクラスでない限り、物理的ハンデを覆すのは困難。</li></ul></div>
+                                    </div>
+                                </section>
+                                <section className="space-y-3">
+                                    <h4 className="flex items-center gap-2 text-blue-400 font-bold text-sm border-b border-slate-700 pb-2"><Activity size={16} /> 変数B：脚質と機動力</h4>
+                                    <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><div className="flex flex-col md:flex-row gap-4"><div className="flex-1"><h5 className="font-bold text-white mb-1 text-sm">4コーナーの物理的境界線</h5><p className="text-slate-300 text-sm leading-relaxed">直線が310mしかないため、4コーナー出口で先頭集団（5番手以内）にいなければ、物理的に届きません。後方一気（追込）が決まるのは、前の馬がハイペースで自滅した時のみです。したがって<strong>「自ら動いて位置を取れる先行・差し馬」</strong>が最も安全な投資対象となります。</p></div></div></div>
+                                </section>
+                                <section className="space-y-3">
+                                    <h4 className="flex items-center gap-2 text-yellow-500 font-bold text-sm border-b border-slate-700 pb-2"><Layers size={16} /> 変数C：馬場適性のエネルギー効率</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-emerald-500"><h5 className="font-bold text-white mb-1">良馬場</h5><p className="text-slate-300">SPEED優位。上がり34秒台の勝負。</p></div>
+                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-blue-500"><h5 className="font-bold text-white mb-1">稍重</h5><p className="text-slate-300">BALANCE優位。持続力が問われる。</p></div>
+                                        <div className="bg-slate-900 p-3 rounded-lg border-l-4 border-red-500"><h5 className="font-bold text-white mb-1">重・不良</h5><p className="text-slate-300">POWER優位。欧州血統やステイヤーが激走。</p></div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const HorseManagerModal = ({ horses, setHorses, onClose }) => {
+            useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = 'unset'; }; }, []);
+
+            const getWakuNum = (gate) => Math.ceil(gate / 2);
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in text-slate-100">
+                    <div className="bg-slate-800 w-full max-w-xl rounded-xl border border-slate-700 shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="bg-slate-900 p-3 border-b border-slate-700 flex justify-between items-center sticky top-0 z-10">
+                            <h2 className="text-lg font-bold flex items-center gap-2"><List size={20} className="text-blue-400"/> 出馬表</h2>
+                            <button onClick={onClose}><X size={24} className="text-slate-400 hover:text-white"/></button>
+                        </div>
+                        
+                        <div className="p-0 overflow-y-auto flex-grow">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead className="text-xs text-slate-400 bg-slate-900/50 uppercase sticky top-0">
+                                    <tr>
+                                        <th className="px-3 py-2 text-center w-12">枠</th>
+                                        <th className="px-2 py-2 text-center w-10">番</th>
+                                        <th className="px-3 py-2">馬名</th>
+                                        <th className="px-3 py-2">騎手</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-700">
+                                    {horses.map(horse => {
+                                        const gateColorClass = getGateColor(horse.gate);
+                                        return (
+                                            <tr key={horse.id} className="hover:bg-slate-700/30">
+                                                <td className="p-2 text-center">
+                                                    <div className={`w-6 h-6 mx-auto rounded flex items-center justify-center font-bold text-xs border shadow-sm ${gateColorClass}`}>
+                                                        {getWakuNum(horse.gate)}
+                                                    </div>
+                                                </td>
+                                                <td className="p-2 text-center font-mono font-bold text-slate-300">{horse.gate}</td>
+                                                <td className="p-2 font-bold text-white">{horse.name}</td>
+                                                <td className="p-2 text-slate-400 text-xs">{horse.jockey}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BettingMemoModal = ({ onClose, horses }) => {
+            const [bets, setBets] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('arima2025_bets');
+                    return saved ? JSON.parse(saved) : [];
+                } catch(e) { return []; }
+            });
+            const [type, setType] = useState('3renpuku'); 
+            const [method, setMethod] = useState('box'); 
+            const [selection, setSelection] = useState({ row1: [], row2: [], row3: [] });
+            
+            useEffect(() => {
+                localStorage.setItem('arima2025_bets', JSON.stringify(bets));
+            }, [bets]);
+
+            useEffect(() => {
+                setSelection({ row1: [], row2: [], row3: [] });
+            }, [type, method]);
+
+            const getMarkForHorse = (num) => {
+                const h = horses.find(h => h.gate === num);
+                if (!h || !h.myMark || h.myMark === '--') return null;
+                return MARKS.find(m => m.label === h.myMark);
+            };
+
+            const combinations = (n, k) => {
+                if (k < 0 || k > n) return 0;
+                let res = 1;
+                for (let i = 0; i < k; i++) res = res * (n - i) / (i + 1);
+                return res;
+            };
+
+            const permutations = (n, k) => {
+                if (k < 0 || k > n) return 0;
+                let res = 1;
+                for (let i = 0; i < k; i++) res *= (n - i);
+                return res;
+            };
+
+            const calculateCount = () => {
+                const r1 = selection.row1.length;
+                const r2 = selection.row2.length;
+                const r3 = selection.row3.length;
+
+                if (method === 'box') {
+                    if (type === 'tan' || type === 'fuku') return r1;
+                    if (type === 'umaren' || type === 'wide') return combinations(r1, 2);
+                    if (type === 'umatan') return permutations(r1, 2);
+                    if (type === '3renpuku') return combinations(r1, 3);
+                    if (type === '3rentan') return permutations(r1, 3);
+                } 
+                else if (method === 'nagashi1') { 
+                    if (r1 !== 1) return 0; 
+                    if (type === 'umaren' || type === 'wide' || type === 'umatan') return r2; 
+                    if (type === '3renpuku') return combinations(r2, 2); 
+                    if (type === '3rentan') return permutations(r2, 2); 
+                }
+                else if (method === 'nagashi2') { 
+                    if (r1 !== 2) return 0; 
+                    if (type === '3renpuku') return r2; 
+                    if (type === '3rentan') return r2; 
+                }
+                else if (method === 'formation') {
+                    let count = 0;
+                    const s1 = selection.row1;
+                    const s2 = method === 'box' ? [] : selection.row2;
+                    const s3 = method === 'box' ? [] : selection.row3;
+                    
+                    if (type === 'umaren' || type === 'wide') {
+                        if(type === 'umaren' || type === 'wide') {
+                            const pairs = new Set();
+                            for(let i of s1) {
+                                for(let j of s2) {
+                                    if(i !== j) {
+                                        const min = Math.min(i, j);
+                                        const max = Math.max(i, j);
+                                        pairs.add(`${min}-${max}`);
+                                    }
+                                }
+                            }
+                            return pairs.size;
+                         }
+
+                    } else if (type === 'umatan') {
+                        for(let i of s1) {
+                            for(let j of s2) {
+                                if(i !== j) count++;
+                            }
+                        }
+                        return count;
+
+                    } else if (type === '3renpuku') {
+                        const triplets = new Set();
+                        for(let i of s1) {
+                            for(let j of s2) {
+                                for(let k of s3) {
+                                    if(i!==j && i!==k && j!==k) {
+                                        const arr = [i,j,k].sort((a,b)=>a-b);
+                                        triplets.add(arr.join('-'));
+                                    }
+                                }
+                            }
+                        }
+                        return triplets.size;
+
+                    } else if (type === '3rentan') {
+                        for(let i of s1) {
+                            for(let j of s2) {
+                                for(let k of s3) {
+                                    if(i!==j && i!==k && j!==k) count++;
+                                }
+                            }
+                        }
+                        return count;
+                    }
+                }
+                return 0;
+            };
+
+            const toggleHorse = (rowKey, num) => {
+                setSelection(prev => {
+                    const list = prev[rowKey];
+                    if (list.includes(num)) {
+                        return { ...prev, [rowKey]: list.filter(n => n !== num) };
+                    } else {
+                        if (method === 'nagashi1' && rowKey === 'row1' && list.length >= 1) {
+                            return { ...prev, [rowKey]: [num] };
+                        }
+                        if (method === 'nagashi2' && rowKey === 'row1' && list.length >= 2) {
+                            return { ...prev }; 
+                        }
+                        return { ...prev, [rowKey]: [...list, num].sort((a,b)=>a-b) };
+                    }
+                });
+            };
+
+            const handleSave = () => {
+                const count = calculateCount();
+                if (count === 0) return;
+                const newBet = {
+                    id: Date.now(),
+                    type,
+                    method,
+                    selection,
+                    count
+                };
+                setBets([newBet, ...bets]);
+                setSelection({ row1: [], row2: [], row3: [] }); 
+            };
+
+            const handleDelete = (id) => {
+                setBets(bets.filter(b => b.id !== id));
+            };
+
+            const getTypeLabel = (t) => {
+                const map = { tan:'単勝', fuku:'複勝', umaren:'馬連', umatan:'馬単', wide:'ワイド', '3renpuku':'3連複', '3rentan':'3連単' };
+                return map[t];
+            };
+
+            const getMethodLabel = (m) => {
+                const map = { box:'ボックス', nagashi1:'流し(1頭軸)', nagashi2:'流し(2頭軸)', formation:'フォーメーション' };
+                return map[m];
+            };
+
+            const renderHorseSelector = (rowKey, label, colorClass) => (
+                <div className="mb-4">
+                    <div className={`text-xs font-bold mb-1 px-2 py-1 rounded ${colorClass} inline-block`}>{label}</div>
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                        {[...Array(16)].map((_, i) => {
+                            const num = i + 1;
+                            const isSelected = selection[rowKey].includes(num);
+                            const mark = getMarkForHorse(num);
+                            return (
+                                <button 
+                                    key={num} 
+                                    onClick={() => toggleHorse(rowKey, num)}
+                                    className={`h-10 rounded text-sm font-bold transition-all relative ${isSelected ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                >
+                                    {num}
+                                    {mark && (
+                                        <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 text-[10px] flex items-center justify-center rounded-full shadow-sm border ${mark.color}`}>
+                                            {mark.label}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in text-slate-100">
+                    <div className="bg-slate-800 w-full max-w-2xl rounded-xl border border-slate-700 shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="bg-slate-900 p-3 border-b border-slate-700 flex justify-between items-center sticky top-0 z-10">
+                            <h2 className="text-lg font-bold flex items-center gap-2"><FileText size={20} className="text-emerald-400"/> 買い目メモ</h2>
+                            <button onClick={onClose}><X size={24} className="text-slate-400 hover:text-white"/></button>
+                        </div>
+                        
+                        <div className="p-4 overflow-y-auto flex-grow">
+                            <div className="grid grid-cols-2 gap-2 mb-4">
+                                <div>
+                                    <label className="text-[10px] text-slate-400 block mb-1">式別</label>
+                                    <select value={type} onChange={(e)=>setType(e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm">
+                                        <option value="3renpuku">3連複</option>
+                                        <option value="3rentan">3連単</option>
+                                        <option value="umaren">馬連</option>
+                                        <option value="umatan">馬単</option>
+                                        <option value="wide">ワイド</option>
+                                        <option value="tan">単勝</option>
+                                        <option value="fuku">複勝</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-slate-400 block mb-1">買い方</label>
+                                    <select value={method} onChange={(e)=>setMethod(e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm">
+                                        <option value="box">ボックス</option>
+                                        <option value="nagashi1">流し (1頭軸)</option>
+                                        {(type === '3renpuku' || type === '3rentan') && <option value="nagashi2">流し (2頭軸)</option>}
+                                        <option value="formation">フォーメーション</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700 mb-4">
+                                {method === 'box' && renderHorseSelector('row1', '選択馬', 'bg-blue-600 text-white')}
+                                {(method === 'nagashi1' || method === 'nagashi2') && (
+                                    <>
+                                        {renderHorseSelector('row1', '軸馬', 'bg-red-600 text-white')}
+                                        {renderHorseSelector('row2', '相手', 'bg-blue-600 text-white')}
+                                    </>
+                                )}
+                                {method === 'formation' && (
+                                    <>
+                                        {renderHorseSelector('row1', '1頭目 (1着)', 'bg-red-600 text-white')}
+                                        {(type !== 'tan' && type !== 'fuku') && renderHorseSelector('row2', '2頭目 (2着)', 'bg-blue-600 text-white')}
+                                        {(type === '3renpuku' || type === '3rentan') && renderHorseSelector('row3', '3頭目 (3着)', 'bg-green-600 text-white')}
+                                    </>
+                                )}
+                            </div>
+
+                            <div className="flex items-center justify-between bg-slate-700 p-3 rounded-lg mb-6">
+                                <div className="text-sm">
+                                    <span className="text-slate-300 mr-2">点数:</span>
+                                    <span className="text-2xl font-bold text-white font-mono">{calculateCount()}</span>
+                                    <span className="text-slate-300 ml-1">点</span>
+                                </div>
+                                <button 
+                                    onClick={handleSave}
+                                    disabled={calculateCount() === 0}
+                                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:text-slate-400 text-white px-4 py-2 rounded font-bold transition-all"
+                                >
+                                    <Plus size={18} /> 確定・保存
+                                </button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="text-xs font-bold text-slate-400 uppercase border-b border-slate-700 pb-1 mb-2">保存された買い目</h3>
+                                {bets.length === 0 && <div className="text-center text-slate-500 text-xs py-4">まだ保存された買い目はありません</div>}
+                                {bets.map(bet => (
+                                    <div key={bet.id} className="bg-slate-800 border border-slate-700 p-3 rounded flex justify-between items-start">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs font-bold bg-slate-700 px-2 py-0.5 rounded text-emerald-400">{getTypeLabel(bet.type)}</span>
+                                                <span className="text-xs text-slate-400">{getMethodLabel(bet.method)}</span>
+                                            </div>
+                                            <div className="text-xs text-white leading-relaxed">
+                                                {bet.method === 'box' && `[${bet.selection.row1.join(',')}]`}
+                                                {bet.method.startsWith('nagashi') && `軸:[${bet.selection.row1.join(',')}] - 相手:[${bet.selection.row2.join(',')}]`}
+                                                {bet.method === 'formation' && (
+                                                    <>
+                                                        [{bet.selection.row1.join(',')}] 
+                                                        {bet.selection.row2.length > 0 && ` - [${bet.selection.row2.join(',')}]`}
+                                                        {bet.selection.row3.length > 0 && ` - [${bet.selection.row3.join(',')}]`}
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="text-xs text-slate-400 mt-1 font-mono">{bet.count}点</div>
+                                        </div>
+                                        <button onClick={() => handleDelete(bet.id)} className="text-slate-500 hover:text-red-400 p-1"><Trash2 size={16}/></button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ArimaAnalyzer = () => {
+            const [trackCondition, setTrackCondition] = useState(DEFAULT_CONDITION);
+            const [showRaceGuide, setShowRaceGuide] = useState(false);
+            const [showBettingMemo, setShowBettingMemo] = useState(false); 
+            const [showRaceCard, setShowRaceCard] = useState(false);
+            const [expandedHorseId, setExpandedHorseId] = useState(null);
+            
+            const [horses, setHorses] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('arima2025_horses_final_v1');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        return FIXED_HORSES.map(fh => {
+                            const found = parsed.find(p => p.id === fh.id);
+                            return { ...fh, myMark: found ? found.myMark : '--' };
+                        });
+                    }
+                } catch (e) { console.error(e); }
+                return FIXED_HORSES.map(h => ({ ...h, myMark: '--' }));
+            });
+
+            const [sortType, setSortType] = useState('score'); 
+
+            useEffect(() => {
+                try {
+                   const savedCond = localStorage.getItem('arima2025_condition_v2'); 
+                   if (savedCond) setTrackCondition(savedCond);
+                } catch(e){}
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('arima2025_condition_v2', trackCondition);
+            }, [trackCondition]);
+
+            useEffect(() => {
+                localStorage.setItem('arima2025_horses_final_v1', JSON.stringify(horses));
+            }, [horses]);
+
+            const toggleExpand = (id) => setExpandedHorseId(expandedHorseId === id ? null : id);
+            
+            const handleMarkChange = (id, markLabel) => {
+                setHorses(prev => prev.map(h => h.id === id ? { ...h, myMark: markLabel } : h));
+            };
+
+            const handleTitleClick = (e) => {
+                if (e.detail === 3) {
+                    try {
+                        const scriptContent = document.getElementById('main-script').textContent;
+                        const styleContent = document.getElementsByTagName('style')[0].innerHTML;
+                        
+                        // We need to inject the horses state into the exported HTML
+                        // Replace the const horses = ... line in scriptContent
+                        // to utilize current state including marks
+                        
+                        // Careful string replacement to inject current horses state as default
+                        let exportScript = scriptContent.replace(
+                            'const [horses, setHorses] = useState(() => {',
+                            `const [horses, setHorses] = useState(${JSON.stringify(horses)}); /*`
+                        ).replace(
+                            'return FIXED_HORSES.map(h => ({ ...h, myMark: \'--\' }));',
+                            ''
+                        ).replace(
+                            '});',
+                            '*/ );'
+                        );
+                        
+                        // Fix the comment block we just made might be syntax error if not careful
+                        // Better approach for portable: just hardcode the data variable
+                        
+                        const htmlContent = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arima Logic 2025 - Portable</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <style>${styleContent}</style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans">
+    <div id="root"></div>
+    <script type="text/babel">
+        // Inject current state
+        const DEFAULT_HORSES_STATE = ${JSON.stringify(horses)};
+        const DEFAULT_CONDITION = "${trackCondition}";
+        
+        ${scriptContent.replace(
+            'const [horses, setHorses] = useState(DEFAULT_HORSES_STATE);', 
+            'const [horses, setHorses] = useState(DEFAULT_HORSES_STATE);'
+        ).replace(
+            "const [trackCondition, setTrackCondition] = useState('good');",
+            "const [trackCondition, setTrackCondition] = useState(DEFAULT_CONDITION);"
+        )}
+    <\/script>
+</body>
+</html>`;
+                        
+                        const blob = new Blob([htmlContent], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'ArimaLogic_2025_App.html';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    } catch (err) {
+                        console.error("Download failed:", err);
+                        alert("ダウンロードに失敗しました。");
+                    }
+                }
+            };
+
+            const sortedHorses = useMemo(() => {
+                return [...horses].sort((a, b) => {
+                    if (sortType === 'score') {
+                        const analysisA = calculateAnalysis(a, trackCondition);
+                        const analysisB = calculateAnalysis(b, trackCondition);
+                        return analysisB.totalScore - analysisA.totalScore;
+                    } else {
+                        return a.gate - b.gate;
+                    }
+                });
+            }, [horses, trackCondition, sortType]);
+
+            const getMarkStyle = (label) => {
+                const m = MARKS.find(m => m.label === label);
+                return m ? m.color : MARKS[0].color;
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-12">
+                    {showRaceGuide && <RaceGuideModal onClose={() => setShowRaceGuide(false)} />}
+                    {showBettingMemo && <BettingMemoModal onClose={() => setShowBettingMemo(false)} horses={horses} />}
+                    {showRaceCard && <RaceCardModal onClose={() => setShowRaceCard(false)} horses={horses} />}
+
+                    <div className="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 shadow-xl">
+                        <div className="max-w-4xl mx-auto px-4 py-2 md:p-3">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+                                <div className="flex items-center gap-3 w-full md:w-auto">
+                                    <div className="cursor-pointer select-none" onClick={handleTitleClick} title="Triple click to download App"><h1 className="text-lg md:text-xl font-bold text-white tracking-tight leading-none">Arima Logic 2025</h1><span className="text-[10px] text-slate-500 font-mono">STRUCTURAL SIMULATOR</span></div>
+                                    <div className="ml-auto md:hidden"></div>
+                                </div>
+                                <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                                    <button onClick={() => setShowRaceGuide(true)} className="flex-1 whitespace-nowrap flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold transition-all shadow-lg border border-transparent"><BookOpen size={16} /> <span className="hidden sm:inline">レース解説</span><span className="sm:hidden">解説</span></button>
+                                    <button onClick={() => setShowRaceCard(true)} className="flex-1 whitespace-nowrap flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-blue-400 px-6 py-2 rounded-lg text-sm font-bold transition-all border border-slate-600 hover:border-blue-500"><List size={16} /> <span className="hidden sm:inline">出馬表</span><span className="sm:hidden">出馬表</span></button>
+                                    <button onClick={() => setShowBettingMemo(true)} className="flex-1 whitespace-nowrap flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-emerald-400 px-6 py-2 rounded-lg text-sm font-bold transition-all border border-slate-600 hover:border-emerald-500"><FileText size={16} /> <span className="hidden sm:inline">買い目メモ</span><span className="sm:hidden">メモ</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-4xl mx-auto px-4 py-2 md:p-4 pb-2">
+                        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-700 flex flex-col md:flex-row items-center gap-3">
+                            <div className="flex-grow w-full">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-2"><Wind size={14} /> 馬場設定</span>
+                                <div className="flex gap-2 w-full">
+                                    {[{ id: 'good', label: '良 (Speed)' }, { id: 'yielding', label: '稍重' }, { id: 'soft', label: '重〜不良' }].map(cond => (
+                                        <button key={cond.id} onClick={() => setTrackCondition(cond.id)} className={`flex-1 px-2 py-2 rounded text-xs font-bold transition-all border ${trackCondition === cond.id ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'}`}>{cond.label}</button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="w-full md:w-auto mt-2 md:mt-0 pt-2 md:pt-0 border-t md:border-t-0 md:border-l border-slate-700 md:pl-4">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-2"><ArrowDownUp size={14} /> 並び替え</span>
+                                <div className="flex gap-2">
+                                    <button onClick={() => setSortType('score')} className={`flex-1 px-3 py-2 rounded text-xs font-bold transition-all border ${sortType === 'score' ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>評価順</button>
+                                    <button onClick={() => setSortType('gate')} className={`flex-1 px-3 py-2 rounded text-xs font-bold transition-all border ${sortType === 'gate' ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>馬番順</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-4xl mx-auto px-4 md:px-6 space-y-4">
+                        <div className="flex justify-between items-center text-xs text-slate-500 px-2">
+                            <span className="flex items-center gap-1"><Info size={14} /> 詳細タップ</span>
+                            <span className="font-bold text-slate-400">分析対象: <span className="text-emerald-400 font-bold">16頭</span> (確定)</span>
+                        </div>
+                        
+                        {sortedHorses.map(horse => {
+                            const result = calculateAnalysis(horse, trackCondition);
+                            const isExpanded = expandedHorseId === horse.id;
+                            const style = getStyleLabel(horse.style);
+                            const gateColor = getGateColor(horse.gate);
+                            const markStyle = getMarkStyle(horse.myMark);
+                            
+                            return (
+                                <div key={horse.id} className={`bg-slate-800 rounded-xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-emerald-500 shadow-lg' : 'border-slate-700 hover:border-slate-500'}`}>
+                                    <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 cursor-pointer relative" onClick={() => toggleExpand(horse.id)}>
+                                        <div className="flex-shrink-0 flex items-center gap-2"><GradeBadge grade={result.grade} size="small" /></div>
+                                        <div className="flex-grow min-w-0">
+                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                <span className={`flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded text-white ${style.color}`}>{style.label}</span>
+                                                <h3 className="font-bold text-white text-base leading-none truncate">{horse.name}</h3>
+                                                <span className="text-xs text-slate-400">({horse.jockey})</span>
+                                                <span className="flex-shrink-0 text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">{getWeight(horse.age, horse.sex)}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1 text-sm text-slate-400">
+                                                <div className="flex items-center gap-3">
+                                                     <span className="font-mono text-emerald-400 font-bold">Score: {result.totalScore.toFixed(0)}</span>
+                                                     <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">適性ランク: {result.suitabilityRank}</span>
+                                                </div>
+                                                <div className="text-xs opacity-80 border-l-2 border-slate-600 pl-2 mt-1 truncate">{horse.desc}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                             <select 
+                                                 value={horse.myMark} 
+                                                 onChange={(e) => handleMarkChange(horse.id, e.target.value)}
+                                                 className={`mark-select w-10 h-10 rounded border ${markStyle} text-sm font-bold focus:outline-none cursor-pointer text-slate-900`}
+                                                 style={{color: horse.myMark === '--' ? '#94a3b8' : 'inherit'}}
+                                             >
+                                                {MARKS.map(m => (
+                                                    <option key={m.label} value={m.label}>{m.label}</option>
+                                                ))}
+                                             </select>
+                                            <div className={`flex-shrink-0 w-8 h-8 rounded flex items-center justify-center font-bold text-sm border shadow-sm ${gateColor}`}>
+                                                {horse.gate}
+                                            </div>
+                                        </div>
+                                        <div className="hidden sm:block text-slate-500">{isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</div>
+                                    </div>
+                                    {isExpanded && (
+                                        <div className="px-4 pb-4 pt-0 border-t border-slate-700 bg-slate-800/50 animate-fade-in">
+                                            <div className="mt-4 mb-4 p-3 bg-slate-700/30 rounded border border-slate-600/50">
+                                                <h4 className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-1"><Trophy size={14}/> Profile & Achievements</h4>
+                                                <p className="text-sm text-white mb-2"><strong>主な実績:</strong> {horse.achievements}</p>
+                                                <div className="text-sm text-slate-300 p-2 bg-slate-800/50 rounded border-l-2 border-emerald-500"><strong>評価:</strong> {horse.desc}</div>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                <div className="space-y-2"><h4 className="text-xs font-bold text-emerald-400 uppercase flex items-center gap-1"><Activity size={14}/> 構造解析レポート</h4><div className="space-y-2 text-sm bg-slate-900 p-3 rounded border border-slate-700"><div className="flex justify-between"><span className="text-slate-400">適性ランク:</span><span className="text-slate-200 font-bold">{result.suitabilityRank}</span></div></div></div>
+                                                <div className="space-y-3"><h4 className="text-xs font-bold text-blue-400 uppercase flex items-center gap-1"><BarChart2 size={14}/> パラメーター</h4><div className="space-y-2"><div className="flex items-center gap-2 text-xs"><span className="w-16 text-slate-400">絶対能力</span><div className="flex-grow h-2 bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{ width: `${result.params.ability}%` }}></div></div><span className="w-8 text-right text-emerald-500 font-mono">{result.params.ability}</span></div><div className="flex items-center gap-2 text-xs"><span className="w-16 text-slate-400">中山適性</span><div className="flex-grow h-2 bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-blue-500" style={{ width: `${result.params.suitability}%` }}></div></div><span className="w-8 text-right text-blue-500 font-mono">{result.params.suitability}</span></div><div className="flex items-center gap-2 text-xs"><span className="w-16 text-slate-400">構造有利</span><div className="flex-grow h-2 bg-slate-700 rounded-full overflow-hidden"><div className={`h-full ${result.params.physics < 50 ? 'bg-red-500' : 'bg-yellow-500'}`} style={{ width: `${result.params.physics}%` }}></div></div><span className="w-8 text-right text-yellow-500 font-mono">{result.params.physics.toFixed(0)}</span></div></div></div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ArimaAnalyzer />);
+    
+    </script>
 </body>
 </html>
